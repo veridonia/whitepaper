@@ -63,10 +63,10 @@ pip install numpy matplotlib termcolor tqdm scipy
 
 2. **Run the Simulation Script:**
 
-   The simulation is implemented in `simulation.py`. To run the simulation, simply execute:
+   The simulation is implemented in the `simulations` folder. To run the posts simulation, execute:
 
    ```bash
-   python simulation.py
+   python simulations/posts.py
    ```
 
    This will:
