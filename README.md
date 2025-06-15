@@ -8,32 +8,31 @@ Veridonia is designed to improve online content curation by promoting transparen
 
 In this simulation:
 
-- **Users** are modeled with a baseline ELO rating (default of 800) and a "goodness" factor, which influences their voting behavior.
-- **Posts** have a quality score between 0 and 1, with each user creating approximately 2 posts.
-- A **multi-stage voting process** determines whether a post is upvoted or downvoted, with users selected based on their ELO ratings.
-- A **special stage** allows low-ELO users (elo ≤ 800) to vote without affecting the overall decision, though their ELO is still adjusted.
-- The simulation features a growing user population up to 5,000 users, mimicking a realistic social platform environment.
-- A **population sample voting** mechanism provides an alternative voting approach using statistically significant samples.
+- **Users** are modeled with a configurable baseline ELO rating (default: 800) and a "goodness" factor, which influences their voting behavior.
+- **Posts** have a quality score between 0 and 1, with each user creating a configurable number of posts (default: 2).
+- A **multi-stage voting process** determines whether a post is supported or opposed, with users selected based on their ELO ratings.
+- A **special stage** allows low-ELO users (below the ELO threshold) to vote without affecting the overall decision, though their ELO is still adjusted.
+- The simulation features a growing user population up to a configurable maximum (default: 5,000 users), mimicking a realistic social platform environment.
+- **Simple majority voting** is used at all stages - posts need more support than opposition votes to advance or be published.
 
 ## Features
 
+- **Configurable Parameters:** All major simulation parameters can be adjusted via command-line arguments.
 - **User Modeling:** Each user has attributes including ELO, goodness, mood factor, and a vote count.
 - **Voting Mechanism:** Users vote on posts based on a combination of their adjusted goodness (affected by mood) and the quality of the post.
 - **Multi-Stage Voting:**
   - For populations with fewer than 20 high-ELO users, a single stage of voting is performed.
   - For larger populations, a two-stage process is used:
-    - **Stage 1:** A sample from the lower ELO tier (bottom 70%) votes. The sample size scales with population size.
-    - **Stage 2:** If the first stage decision is inconclusive, a sample from the upper ELO tier (top 30%) is used to validate the decision.
-  - **Special Stage:** Low-ELO users (≤ 800) vote separately, and their votes are used only to adjust their own ELO scores.
-- **Population Sample Voting:** An alternative voting mechanism that uses statistically significant samples from the entire population to make decisions.
-- **ELO Adjustments:** User ratings are updated based on vote outcomes using team-based ELO updates.
+    - **Stage 1:** A configurable number of users from the lower ELO tier (configurable split, default: bottom 70%) votes.
+    - **Stage 2:** If Stage 1 has more support than opposition votes, a configurable number of users from the upper ELO tier (remaining percentage) votes to make the final decision.
+  - **Special Stage:** Low-ELO users (below the ELO threshold) vote separately, and their votes are used only to adjust their own ELO scores.
+- **ELO Adjustments:** User ratings are updated based on vote outcomes using team-based ELO updates with configurable K-factor.
 - **Visualization:** After simulation runs, various plots display:
   - Distribution of user goodness and ELO ratings
-  - Comparison of correct votes ratio between staged and population sample voting
+  - Correct votes ratio over time with linear regression analysis
   - Population growth over time
   - Sample sizes used in voting
-  - Voting participation ratios by user group
-  - Linear regression analysis of voting accuracy trends
+  - Voting participation ratios by user group (with dynamic labels reflecting actual configuration)
 
 ## Dependencies
 
@@ -52,6 +51,35 @@ You can install the required packages using pip:
 pip install numpy matplotlib termcolor tqdm scipy
 ```
 
+Or using the provided requirements file:
+
+```bash
+pip install -r requirements.txt
+```
+
+## Command Line Interface
+
+The simulation supports extensive customization through command-line arguments:
+
+### Population & Content Parameters
+
+- `--max-population` (default: 5000) - Maximum population size
+- `--posts-per-user` (default: 2) - Posts per user
+- `--growth-rate` (default: 0.10) - Population growth rate
+
+### Voting Stage Parameters
+
+- `--stage1-users` (default: 5) - Number of users in stage 1 voting
+- `--stage2-users` (default: 5) - Number of users in stage 2 voting
+- `--low-elo-users` (default: 5) - Number of low ELO users in special stage
+- `--stage1-split` (default: 70) - Percentage of high-ELO users for stage 1 (remaining go to stage 2)
+
+### ELO System Parameters
+
+- `--elo-start` (default: 800) - Starting ELO rating for new users
+- `--elo-threshold` (default: 800) - ELO threshold for filtering users
+- `--k-factor` (default: 32) - K-factor for ELO calculations
+
 ## How to Run the Simulation
 
 1. **Clone the Repository:**
@@ -61,20 +89,46 @@ pip install numpy matplotlib termcolor tqdm scipy
    cd veridonia-simulation
    ```
 
-2. **Run the Simulation Script:**
-
-   The simulation is implemented in `simulation.py`. To run the simulation, simply execute:
+2. **Run the Simulation with Default Parameters:**
 
    ```bash
    python simulation.py
    ```
 
-   This will:
+3. **Run with Custom Parameters:**
 
-   - Grow the user population gradually until it reaches 5,000 users.
-   - Generate posts (approximately 2 per user) and simulate both multi-stage and population sample voting processes.
-   - Update users' ELO ratings based on voting accuracy.
-   - Display comprehensive visualizations comparing different voting mechanisms and their effectiveness.
+   ```bash
+   # Smaller, faster simulation
+   python simulation.py --max-population 1000 --posts-per-user 1
+
+   # Different stage split (50/50 instead of 70/30)
+   python simulation.py --stage1-split 50
+
+   # Custom ELO parameters
+   python simulation.py --elo-start 1000 --elo-threshold 900 --k-factor 16
+
+   # Different voting group sizes
+   python simulation.py --stage1-users 3 --stage2-users 7 --low-elo-users 10
+
+   # Combination of parameters
+   python simulation.py --max-population 2000 --stage1-split 80 --stage1-users 7
+   ```
+
+4. **View All Available Options:**
+
+   ```bash
+   python simulation.py --help
+   ```
+
+## Voting System Details
+
+The simulation uses a **simple majority voting system**:
+
+- **Stage 1:** If more users support than oppose, the post advances to Stage 2
+- **Stage 2:** If more users support than oppose, the post is published; otherwise rejected
+- **Single Stage:** (when <20 high-ELO users) If more users support than oppose, the post is published
+
+This simplified approach focuses on democratic decision-making while maintaining the two-tier expert review structure.
 
 ## Relationship to the Whitepaper
 

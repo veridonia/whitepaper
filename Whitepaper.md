@@ -1,6 +1,6 @@
 # Veridonia
 
-## A Whitepaper on Transparent, Community-Driven Information Curation
+## A Whitepaper on Transparent and Scalable Community-Driven Information Curation
 
 ### Abstract
 
@@ -54,14 +54,14 @@ Veridonia employs a dynamic, two-stage voting mechanism designed for accuracy, t
 - Participants: A random sample selected from users in the lower 70% ELO tier (above a minimum ELO threshold, typically ELO > 800).
 - Decision Criterion: Participants assess content quality and community alignment.
 - Outcome:
-  - If at least 70% consensus is achieved (either approval or rejection), the decision is immediately finalised.
-  - If consensus falls below 70%, the voting advances to Stage 2 for a final decision.
+  - If the majority of participants approve the content, the content advances to Stage 2 for final evaluation.
+  - If the majority reject the content, the content is immediately rejected without proceeding to Stage 2.
 
 **5.2 Stage 2: Final Decision (Conditional)**
 
 - Participants: A random sample from the top 30% ELO tier of eligible voters.
 - Decision Criterion: A simple majority finalises the content decision.
-- Outcome: The content is either approved ("publish") or rejected ("delete") based on the majority decision.
+- Outcome: The content is either approved ("publish") or rejected ("do not publish") based on the majority decision.
 
 **Special Conditions:**
 
