@@ -582,10 +582,42 @@ def plot_distributions(
 
     # Subplot 5: Sample Size Used Over Time
     plt.subplot(2, 3, 5)
-    plt.plot(range(len(sample_sizes)), sample_sizes, color="g", label="Staged Voting")
-    plt.xlabel("Stage Index")
-    plt.ylabel("Number of Voters")
-    plt.title("Sample Size Used Over Time")
+
+    # Aggregate sample sizes by taking max values over intervals
+    target_points = 50  # Target number of data points to show
+    if len(sample_sizes) > target_points:
+        # For larger datasets, show max values over intervals
+        interval_size = max(
+            1, len(sample_sizes) // target_points
+        )  # Dynamic interval based on data size
+        aggregated_sample_sizes = []
+        aggregated_indices = []
+
+        for i in range(0, len(sample_sizes), interval_size):
+            chunk = sample_sizes[i : i + interval_size]
+            if chunk:  # Make sure chunk is not empty
+                aggregated_sample_sizes.append(max(chunk))
+                aggregated_indices.append(
+                    i + interval_size // 2
+                )  # Use middle of interval as x-position
+
+        plt.plot(
+            aggregated_indices,
+            aggregated_sample_sizes,
+            "go-",
+            label="Max Sample Size (Intervals)",
+            markersize=4,
+        )
+        plt.xlabel("Stage Index")
+        plt.ylabel("Number of Voters")
+        plt.title(f"Sample Size Used Over Time (Max per {interval_size} rounds)")
+    else:
+        # For smaller datasets, show all values
+        plt.plot(range(len(sample_sizes)), sample_sizes, color="g", label="Sample Size")
+        plt.xlabel("Stage Index")
+        plt.ylabel("Number of Voters")
+        plt.title("Sample Size Used Over Time")
+
     plt.legend()
 
     # Subplot 6: Voting Participation Ratio Over Time (by user group)
