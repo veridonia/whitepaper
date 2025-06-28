@@ -24,51 +24,63 @@ The prevailing model for information sharing suffers from several critical flaws
 4. **Opaque Decision-Making:** Hidden algorithmic processes limit transparency and accountability, fostering widespread mistrust ([4](https://doi.org/10.1177/1461444816676645)).
 5. **Negative Societal Impacts:** The relentless pursuit of engagement contributes significantly to mental health issues and decreased productivity ([5](https://doi.org/10.1080/02673843.2019.1590851)).
 
-### 3. Veridonia's Proposed Solution
+### 3. Veridonia’s Proposed Solution
 
-Veridonia replaces the opaque, engagement-centric model with a transparent, community-powered framework. Our system leverages a multi-stage voting process and an ELO-based reputation mechanism to ensure that content quality is determined by merit and consensus. Key aspects of our approach include:
+Veridonia introduces a transformative, community-driven approach to online content curation based on four foundational pillars:
 
-- **Community-Driven Moderation:** Every piece of content is rigorously vetted by a cross-section of the user base.
-- **Transparent Algorithms:** All decisions, votes, and reputation adjustments are publicly recorded, allowing for independent verification.
-- **Self-Governance:** Veridonia is fundamentally governed by its community, empowering every member to contribute to decision-making. The platform operates without centralised authority, ensuring that content curation remains decentralised and inclusive. The only exception is when community actions, such as posting outright illegal content, threaten the platform's very existence.
-- **Resistance to Manipulation:** Randomised participant selection minimises the risk of coordinated attacks or manipulation by malicious entities.
+**1. Sortition (Randomized Participant Selection)**  
+Participants evaluating content are randomly selected, ensuring fairness, diversity, and resistance to manipulation.
+
+**2. Consensus (Majority-Based Decision-Making)**  
+Content decisions rely on majority voting at multiple stages, fostering community alignment and collective agreement.
+
+**3. ELO-Based Reputation System**  
+A dynamic reputation system based on ELO ratings rewards accurate decision-making, ensuring meritocracy and thoughtful engagement.
+
+**4. Multi-Stage Voting Process**  
+A structured, tiered voting mechanism balances efficiency with quality, using progressively qualified groups of community members to evaluate content.
+
+**5. Transparency and Auditability**  
+All moderation actions, votes, and reputation adjustments are publicly recorded, ensuring full transparency and enabling independent verification. This openness safeguards the integrity of the community governance model.
+
+This combined framework addresses critical flaws in traditional engagement-driven platforms, restoring trust and prioritizing content integrity.
 
 ### 4. System Architecture
 
-**4.1 User Onboarding and Baseline Attributes**
+#### 4.1 User Onboarding and Baseline Attributes
 
 - **IP-Based ELO Inheritance:** To protect the platform from bot attacks and coordinated manipulation, all new users inherit the ELO rating assigned to their IP address. After each voting stage, an IP address is updated to reflect the lowest ELO among its associated users. For example, if users from an IP (e.g., 156.156.156.3) have ELO ratings of 850, 700, and 1500, the IP is assigned an ELO of 700. Any new users registering from this IP will begin with an ELO of 700, capped at a default maximum (e.g., 800) for first-time IPs.
 - **Initial Assignment:** If the IP address has no previous users, a default ELO rating (e.g., 800) is used.
 - **Reputation Development:** Users' influence in content curation evolves over time, reflecting the accuracy and consistency of their judgements.
 
-**4.2 Post Submission**
+#### 4.2 Post Submission
 
 When a post is submitted, a random subset of relevant community members is selected to review the content. This randomness is essential to ensure that decisions reflect genuine community consensus rather than the influence of targeted manipulation.
 
-### 5. Multi-Stage Voting Process
+#### 4.3 Multi-Stage Voting Process
 
 Veridonia employs a dynamic, two-stage voting mechanism designed for accuracy, transparency, and scalability. The system operates similarly to a series of community referendums, where a small, carefully selected group of voters represents the broader community's likely preferences. This approach allows us to efficiently determine whether content should be published without requiring every community member to vote on every piece of content, whilst maintaining the integrity and accuracy of the decision-making process.
 
-**5.1 Stage 1: Initial Filtering**
+- **Stage 1: Initial Filtering**
 
-- Participants: A random sample selected from users in the lower 70% ELO tier (above a minimum ELO threshold, typically ELO > 800).
-- Decision Criterion: Participants assess content quality and community alignment.
-- Outcome:
-  - If the majority of participants approve the content, the content advances to Stage 2 for final evaluation.
-  - If the majority reject the content, the content is immediately rejected without proceeding to Stage 2.
+  - Participants: A random sample selected from users in the lower 70% ELO tier (above a minimum ELO threshold, typically ELO > 800).
+  - Decision Criterion: Participants assess content quality and community alignment.
+  - Outcome:
+    - If the majority of participants approve the content, the content advances to Stage 2 for final evaluation.
+    - If the majority reject the content, the content is immediately rejected without proceeding to Stage 2.
 
-**5.2 Stage 2: Final Decision (Conditional)**
+- **Stage 2: Final Decision (Conditional)**
 
-- Participants: A random sample from the top 30% ELO tier of eligible voters.
-- Decision Criterion: A simple majority finalises the content decision.
-- Outcome: The content is either approved ("publish") or rejected ("do not publish") based on the majority decision.
+  - Participants: A random sample from the top 30% ELO tier of eligible voters.
+  - Decision Criterion: A simple majority finalises the content decision.
+  - Outcome: The content is either approved ("publish") or rejected ("do not publish") based on the majority decision.
 
-**Special Conditions:**
+- **Special Conditions:**
 
-- For populations with fewer than 20 eligible voters, a simplified single-stage voting process is employed.
-- After the primary voting stages, a special, non-decisional voting stage occurs involving a small subset (up to 5) of low-ELO users (ELO ≤ 800). This stage does not influence the content approval decision and is solely for giving a second chance to the users who have previously misbehaved and to test the users who have just joined the community.
+  - For populations with fewer than 20 eligible voters, a simplified single-stage voting process is employed.
+  - After the primary voting stages, a special, non-decisional voting stage occurs involving a small subset (up to 5) of low-ELO users (ELO ≤ 800). This stage does not influence the content approval decision and is solely for giving a second chance to the users who have previously misbehaved and to test the users who have just joined the community.
 
-### 6. ELO-Based Reputation System
+#### 4.4 ELO-Based Reputation System
 
 The ELO-based reputation system is central to Veridonia's meritocratic model:
 
@@ -81,7 +93,7 @@ The ELO-based reputation system is central to Veridonia's meritocratic model:
   3. Winners gain ELO, moving their ratings upward towards the opposing group's average rating, whilst losers lose ELO, moving downward towards the winners' average.
   4. This method promotes accuracy and fairness by rewarding collective correct judgements and gradually increasing the decision-making influence of consistently accurate users.
 
-### 7. Transparency and Self-Governance
+### 5. Transparency and Self-Governance
 
 Veridonia is designed to be an open and self-regulating ecosystem:
 
@@ -89,13 +101,13 @@ Veridonia is designed to be an open and self-regulating ecosystem:
 - **Decentralised Moderation:** Governance is vested in the community, with every member (including guests) empowered to contribute, vote, and shape content standards.
 - **Data Privacy:** Whilst maintaining openness, Veridonia is committed to robust data privacy practices, allowing users to download and verify all activity history without compromising security.
 
-### 8. Additional Core Principles
+### 6. Additional Core Principles
 
 - **Independence from Advertiser Influence:** Veridonia is free from advertiser funding, ensuring that content curation remains unbiased and dictated solely by community standards.
 - **Integrity in Information Sharing:** By prioritising transparency and quality, Veridonia mitigates the risks of misinformation and preserves the integrity of the information ecosystem.
 - **User Empowerment:** The platform is structured to empower users, granting them direct oversight of the content curation process without the interference of centralised authorities.
 
-### 9. Conclusion
+### 7. Conclusion
 
 Veridonia represents a bold new vision for online information sharing—a system that replaces opaque, engagement-driven algorithms with a transparent, community-powered model. Through its innovative multi-stage voting process and dynamic ELO-based reputation system, Veridonia ensures that only content meeting quality standards is published. In doing so, it addresses the deep-seated issues of misinformation, sensationalism, and algorithmic opacity prevalent in today's digital media landscape.
 
