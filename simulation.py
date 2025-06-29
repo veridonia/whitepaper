@@ -541,7 +541,7 @@ def plot_distributions(
     stage1_split,
     elo_posting_scale,
 ):
-    plt.figure(figsize=(20, 8))  # Increased width for 2x4 grid
+    plt.figure(figsize=(16, 8))  # Increased width for 2x4 grid
 
     # Subplot 1: Distribution of Users by Goodness Factor
     plt.subplot(2, 4, 1)
@@ -669,7 +669,7 @@ def plot_distributions(
         )
         plt.xlabel("Stage Index")
         plt.ylabel("Number of Voters")
-        plt.title(f"Sample Size Used Over Time (Max per {interval_size} rounds)")
+        plt.title(f"Sample Size Used Over Time")
     else:
         # For smaller datasets, show all values
         plt.plot(range(len(sample_sizes)), sample_sizes, color="g", label="Sample Size")
@@ -748,10 +748,10 @@ def plot_distributions(
         plt.xticks(
             x,
             [
-                f"Q1\n≤{q1:.0f}\n({user_counts[0]} users)",
-                f"Q2\n{q1:.0f}-{q2:.0f}\n({user_counts[1]} users)",
-                f"Q3\n{q2:.0f}-{q3:.0f}\n({user_counts[2]} users)",
-                f"Q4\n>{q3:.0f}\n({user_counts[3]} users)",
+                f"Q1\n≤{q1:.0f}",
+                f"Q2\n{q1:.0f}-{q2:.0f}",
+                f"Q3\n{q2:.0f}-{q3:.0f}",
+                f"Q4\n>{q3:.0f}",
             ],
         )
 
@@ -896,30 +896,9 @@ def plot_distributions(
             # Add a point showing the weight at this ELO
             plt.plot(q, q_weight, "o", color=color, markersize=8, alpha=0.8)
 
-        # Add annotations showing the effect
-        plt.text(
-            0.02,
-            0.98,
-            f"Throttling Scale: {elo_posting_scale}",
-            transform=plt.gca().transAxes,
-            fontsize=10,
-            verticalalignment="top",
-            bbox=dict(boxstyle="round,pad=0.3", facecolor="lightblue", alpha=0.7),
-        )
-
-        plt.text(
-            0.02,
-            0.85,
-            f"Lower scale = More extreme throttling",
-            transform=plt.gca().transAxes,
-            fontsize=9,
-            verticalalignment="top",
-            bbox=dict(boxstyle="round,pad=0.2", facecolor="white", alpha=0.8),
-        )
-
         plt.xlabel("User ELO Rating")
         plt.ylabel("Relative Posting Probability")
-        plt.title("ELO-Based Posting Throttling\n(Sigmoid Function)")
+        plt.title("ELO-Based Posting Throttling")
         plt.grid(True, alpha=0.3)
         plt.legend(fontsize=8, loc="center right")
         plt.xlim(min_elo - 30, max_elo + 30)
