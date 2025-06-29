@@ -63,7 +63,7 @@ Veridonia employs a dynamic, two-stage voting mechanism designed for accuracy, t
 
 - **Stage 1: Initial Filtering**
 
-  - Participants: A random sample selected from users in the lower 70% ELO tier (above a minimum ELO threshold, typically ELO > 800).
+  - Participants: A random sample selected from users in the lower 70% ELO tier of all community members.
   - Decision Criterion: Participants assess content quality and community alignment.
   - Outcome:
     - If the majority of participants approve the content, the content advances to Stage 2 for final evaluation.
@@ -71,14 +71,13 @@ Veridonia employs a dynamic, two-stage voting mechanism designed for accuracy, t
 
 - **Stage 2: Final Decision (Conditional)**
 
-  - Participants: A random sample from the top 30% ELO tier of eligible voters.
+  - Participants: A random sample from the top 30% ELO tier of all community members.
   - Decision Criterion: A simple majority finalises the content decision.
   - Outcome: The content is either approved ("publish") or rejected ("do not publish") based on the majority decision.
 
 - **Special Conditions:**
 
-  - For populations with fewer than 20 eligible voters, a simplified single-stage voting process is employed.
-  - After the primary voting stages, a special, non-decisional voting stage occurs involving a small subset (up to 5) of low-ELO users (ELO ≤ 800). This stage does not influence the content approval decision and is solely for giving a second chance to the users who have previously misbehaved and to test the users who have just joined the community.
+  - For populations with fewer than 20 community members, a simplified single-stage voting process is employed, with participants selected randomly from all available users.
 
 #### 4.4 ELO-Based Reputation System
 

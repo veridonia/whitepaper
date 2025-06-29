@@ -134,32 +134,22 @@ def multi_stage_voting(
     all_users,
     stage1_users=5,
     stage2_users=5,
-    low_elo_users=5,
-    elo_threshold=800,
     k_factor=32,
     stage1_split=70,
 ):
     """
     Implements a two-stage voting mechanism for a given post using ELO tiers.
-    Only considers users with elo > elo_threshold.
-    If the number of filtered users is less than 20, a single stage voting is performed by selecting stage1_users from the filtered users.
+    If the number of users is less than 20, a single stage voting is performed by selecting stage1_users from all users.
     Otherwise:
-      - Stage 1: Bottom stage1_split% of the filtered users (select stage1_users)
-      - Stage 2: Top (100-stage1_split)% of the filtered users (select stage2_users) - only if Stage 1 has more support than oppose votes
+      - Stage 1: Bottom stage1_split% of all users (select stage1_users)
+      - Stage 2: Top (100-stage1_split)% of all users (select stage2_users) - only if Stage 1 has more support than oppose votes
     Publishing rules:
       - Single stage: More support than oppose votes required to publish
       - Two stage: Stage 1 needs more support than oppose votes to advance to Stage 2, then Stage 2 needs more support than oppose votes to publish
-    After the final decision is determined, a special stage is executed for users with elo <= elo_threshold.
-    This special stage selects low_elo_users from the low-elo group and adjusts their elo based on whether their vote matches the final decision.
-    Their votes do not affect the overall decision or metrics.
     """
 
-    # Filter users with elo > elo_threshold
-    filtered_users = [user for user in all_users if user.elo > elo_threshold]
-    if not filtered_users:
-        filtered_users = all_users
-
-    if not filtered_users:
+    # Use all users for voting
+    if not all_users:
         return (
             [],
             "oppose",
@@ -167,16 +157,15 @@ def multi_stage_voting(
             [],
             [],
             [],
-        )  # Added empty lists for stage1, stage2, low_elo participants
+        )  # Added empty lists for stage1, stage2 participants
 
-    sorted_users = sorted(filtered_users, key=lambda u: u.elo)
+    sorted_users = sorted(all_users, key=lambda u: u.elo)
     N = len(sorted_users)
     sample_size = 0
 
     # Lists to track which users participated in each stage
     stage1_participants = []
     stage2_participants = []
-    low_elo_participants = []
 
     # If there are less than 20 filtered users, perform single stage voting
     if N < 20:
@@ -250,45 +239,12 @@ def multi_stage_voting(
         else:
             votes, decision = votes1, "oppose"
 
-    # Special stage for users with elo <= elo_threshold (only if final decision is 'support' or 'oppose')
-    if decision in ["support", "oppose"]:
-        low_elo_user_list = [user for user in all_users if user.elo <= elo_threshold]
-        if low_elo_user_list:
-            special_users = (
-                low_elo_user_list
-                if len(low_elo_user_list) <= low_elo_users
-                else random.sample(low_elo_user_list, low_elo_users)
-            )
-            special_votes = []
-            for user in special_users:
-                # Get the user's vote without affecting overall metrics
-                vote_decision = vote(user, post)
-                special_votes.append((user, vote_decision))
-            low_elo_participants = [user for user, _ in special_votes]
-            winners = [user for user, v in special_votes if v == decision]
-            losers = [user for user, v in special_votes if v != decision]
-            if winners and losers:
-                average_winner_elo = sum(u.elo for u in winners) / len(winners)
-                average_loser_elo = sum(u.elo for u in losers) / len(losers)
-                change_per_winner, change_per_loser = elo_update_team(
-                    average_winner_elo,
-                    average_loser_elo,
-                    k=k_factor,
-                    winner_size=len(winners),
-                    loser_size=len(losers),
-                )
-                for user in winners:
-                    user.elo += change_per_winner
-                for user in losers:
-                    user.elo += change_per_loser
-
     return (
         votes,
         decision,
         sample_size,
         stage1_participants,
         stage2_participants,
-        low_elo_participants,
     )
 
 
@@ -298,9 +254,7 @@ def run_simulation(
     growth_rate=0.10,
     stage1_users=5,
     stage2_users=5,
-    low_elo_users=5,
     elo_start=800,
-    elo_threshold=800,
     k_factor=32,
     stage1_split=70,
 ):
@@ -321,12 +275,10 @@ def run_simulation(
         # Track participants count from each group
         stage1_participants_count = []
         stage2_participants_count = []
-        low_elo_participants_count = []
 
         # Track population of each group over time
         stage1_population_sizes = []
         stage2_population_sizes = []
-        low_elo_population_sizes = []
 
         population_increment = 1.0  # Start by adding 1 user at a time
         while len(users) < max_population:
@@ -347,24 +299,14 @@ def run_simulation(
 
             for post in new_posts:
                 # Record group populations at this point
-                filtered_users = [u for u in users if u.elo > elo_threshold]
-                if not filtered_users:
-                    # If no high-ELO users, consider all users as low-ELO
-                    stage1_population_sizes.append(0)
-                    stage2_population_sizes.append(0)
-                    low_elo_population_sizes.append(len(users))
-                else:
-                    sorted_users = sorted(filtered_users, key=lambda u: u.elo)
-                    # Stage 1: Bottom X%
-                    stage1_group_size = int(stage1_split / 100.0 * len(sorted_users))
-                    # Stage 2: Top (100-X)%
-                    stage2_group_size = len(sorted_users) - stage1_group_size
-                    # Low ELO: Users with ELO <= elo_threshold
-                    low_elo_group_size = len(users) - len(filtered_users)
+                sorted_users = sorted(users, key=lambda u: u.elo)
+                # Stage 1: Bottom X%
+                stage1_group_size = int(stage1_split / 100.0 * len(sorted_users))
+                # Stage 2: Top (100-X)%
+                stage2_group_size = len(sorted_users) - stage1_group_size
 
-                    stage1_population_sizes.append(stage1_group_size)
-                    stage2_population_sizes.append(stage2_group_size)
-                    low_elo_population_sizes.append(low_elo_group_size)
+                stage1_population_sizes.append(stage1_group_size)
+                stage2_population_sizes.append(stage2_group_size)
 
                 # Regular staged voting
                 (
@@ -373,14 +315,11 @@ def run_simulation(
                     post_sample_size,
                     stage1_participants,
                     stage2_participants,
-                    low_elo_participants,
                 ) = multi_stage_voting(
                     post,
                     users,
                     stage1_users,
                     stage2_users,
-                    low_elo_users,
-                    elo_threshold,
                     k_factor,
                     stage1_split,
                 )
@@ -389,7 +328,6 @@ def run_simulation(
                 # Store participants count from each group
                 stage1_participants_count.append(len(stage1_participants))
                 stage2_participants_count.append(len(stage2_participants))
-                low_elo_participants_count.append(len(low_elo_participants))
 
                 is_correct = (decision == "support" and post.quality >= 0.5) or (
                     decision == "oppose" and post.quality < 0.5
@@ -428,12 +366,9 @@ def run_simulation(
         cumulative_votes_list,
         stage1_participants_count,
         stage2_participants_count,
-        low_elo_participants_count,
         stage1_population_sizes,
         stage2_population_sizes,
-        low_elo_population_sizes,
         stage1_split,
-        elo_threshold,
     )
     return users
 
@@ -475,12 +410,9 @@ def plot_distributions(
     cumulative_votes_list,
     stage1_participants_count,
     stage2_participants_count,
-    low_elo_participants_count,
     stage1_population_sizes,
     stage2_population_sizes,
-    low_elo_population_sizes,
     stage1_split,
-    elo_threshold,
 ):
     plt.figure(figsize=(15, 8))  # Adjusted figure size for 2x3 grid
 
@@ -629,7 +561,6 @@ def plot_distributions(
         # Process with a moving average
         stage1_ratio = []
         stage2_ratio = []
-        low_elo_ratio = []
 
         for i in range(len(cumulative_votes_list) - window_size + 1):
             # Average group sizes over the window
@@ -639,14 +570,10 @@ def plot_distributions(
             window_stage2_pop = (
                 sum(stage2_population_sizes[i : i + window_size]) / window_size
             )
-            window_low_elo_pop = (
-                sum(low_elo_population_sizes[i : i + window_size]) / window_size
-            )
 
             # Sum of participants in this window
             window_stage1_votes = sum(stage1_participants_count[i : i + window_size])
             window_stage2_votes = sum(stage2_participants_count[i : i + window_size])
-            window_low_elo_votes = sum(low_elo_participants_count[i : i + window_size])
 
             # Calculate the vote frequency: votes per user in each group
             # This accounts for population growth by normalizing by the population size
@@ -664,13 +591,6 @@ def plot_distributions(
             else:
                 stage2_ratio.append(0)
 
-            if window_low_elo_pop > 0:
-                low_elo_ratio.append(
-                    (window_low_elo_votes / window_low_elo_pop) * 100 / window_size
-                )
-            else:
-                low_elo_ratio.append(0)
-
         # Plot the ratios
         x_range = range(len(stage1_ratio))
         stage2_split = 100 - stage1_split
@@ -679,9 +599,6 @@ def plot_distributions(
         )
         plt.plot(
             x_range, stage2_ratio, "r-", label=f"Stage 2 Users (Top {stage2_split}%)"
-        )
-        plt.plot(
-            x_range, low_elo_ratio, "g-", label=f"Low-ELO Users (≤{elo_threshold})"
         )
 
     plt.xlabel("Stage Index")
@@ -726,12 +643,6 @@ def main():
         default=5,
         help="Number of users in stage 2 voting (default: 5)",
     )
-    parser.add_argument(
-        "--low-elo-users",
-        type=int,
-        default=5,
-        help="Number of low ELO users in special stage (default: 5)",
-    )
 
     # ELO parameters
     parser.add_argument(
@@ -740,12 +651,7 @@ def main():
         default=800,
         help="Starting ELO rating for new users (default: 800)",
     )
-    parser.add_argument(
-        "--elo-threshold",
-        type=int,
-        default=800,
-        help="ELO threshold for filtering users (default: 800)",
-    )
+
     parser.add_argument(
         "--k-factor",
         type=int,
@@ -768,9 +674,7 @@ def main():
         growth_rate=args.growth_rate,
         stage1_users=args.stage1_users,
         stage2_users=args.stage2_users,
-        low_elo_users=args.low_elo_users,
         elo_start=args.elo_start,
-        elo_threshold=args.elo_threshold,
         k_factor=args.k_factor,
         stage1_split=args.stage1_split,
     )
