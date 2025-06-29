@@ -34,9 +34,15 @@ class User:
 
 
 class Post:
-    def __init__(self, id):
+    def __init__(self, id, creator_user):
         self.id = id
-        self.quality = random.uniform(0, 1)
+        self.creator = creator_user
+        self.creator_elo_at_creation = creator_user.elo  # Store ELO at time of creation
+        # Post quality is influenced by creator's goodness with some randomness
+        # Base quality from user's goodness, plus random variation
+        base_quality = creator_user.goodness
+        random_variation = random.uniform(-0.2, 0.2)  # ±20% variation
+        self.quality = max(0, min(1, base_quality + random_variation))
 
 
 def elo_update(winner_elo, loser_elo, k=32):
@@ -127,6 +133,57 @@ def count_votes(votes):
     total_votes = len(votes)
     majority_supported = support_votes > oppose_votes if total_votes > 0 else False
     return support_votes, oppose_votes, total_votes, majority_supported
+
+
+def select_posting_users(users, num_posts, elo_scale=400):
+    """
+    Select users to create posts based on ELO-weighted probability.
+    Uses a sigmoid-like function with steeper rise in the middle range.
+
+    Args:
+        users: List of all users
+        num_posts: Number of posts to be created
+        elo_scale: Scale parameter (lower = more extreme difference)
+
+    Returns:
+        List of selected users (can include duplicates if a user posts multiple times)
+    """
+    if not users:
+        return []
+
+    # Get ELO range
+    min_elo = min(user.elo for user in users)
+    max_elo = max(user.elo for user in users)
+    mid_elo = (min_elo + max_elo) / 2  # Middle of the ELO range
+
+    # Calculate posting probabilities using a sigmoid-like function
+    # centered at the middle of the ELO range with steepness controlled by elo_scale
+    weights = []
+    for user in users:
+        # Normalize ELO to be centered around 0 relative to the midpoint
+        normalized_elo = (user.elo - mid_elo) / elo_scale
+
+        # Apply sigmoid function: 1 / (1 + e^(-x))
+        # Steepness is controlled by elo_scale - smaller values make the curve steeper
+        sigmoid_weight = 1 / (
+            1 + math.exp(-normalized_elo * 10)
+        )  # Fixed steepness multiplier
+
+        # Apply additional exponential scaling to make higher ELOs even more favored
+        weight = sigmoid_weight  # No additional exponential scaling
+        weights.append(weight)
+
+    # Normalize weights to probabilities
+    total_weight = sum(weights)
+    probabilities = [w / total_weight for w in weights]
+
+    # Select users based on weighted probabilities
+    selected_users = []
+    for _ in range(num_posts):
+        selected_user = random.choices(users, weights=probabilities, k=1)[0]
+        selected_users.append(selected_user)
+
+    return selected_users
 
 
 def multi_stage_voting(
@@ -257,6 +314,7 @@ def run_simulation(
     elo_start=800,
     k_factor=32,
     stage1_split=70,
+    elo_posting_scale=100,
 ):
 
     with tqdm(total=max_population, desc="Growing user population") as pbar:
@@ -291,10 +349,21 @@ def run_simulation(
             ]
             users.extend(new_users)
 
-            new_posts = [
-                Post(i)
-                for i in range(len(posts), len(posts) + (posts_per_user * new_count))
-            ]
+            # Calculate how many posts should be created this iteration
+            posts_to_create = posts_per_user * new_count
+
+            # Select users who will create posts (probabilistically based on ELO)
+            posting_users = select_posting_users(
+                users, posts_to_create, elo_posting_scale
+            )
+
+            # Create posts with their creators
+            new_posts = []
+            for i, creator in enumerate(posting_users):
+                post_id = len(posts) + i
+                new_post = Post(post_id, creator)
+                new_posts.append(new_post)
+
             posts.extend(new_posts)
 
             for post in new_posts:
@@ -357,8 +426,60 @@ def run_simulation(
     print(f"Total number of votes: {total_votes}")
     print(f"Correct votes: {(correct_votes / total_votes) * 100:.2f}%")
 
+    # Show post creation statistics
+    if posts:
+        creator_elos = [
+            post.creator_elo_at_creation for post in posts
+        ]  # Use ELO at creation time
+        print(f"\nPost Creation Statistics:")
+        print(f"Total posts created: {len(posts)}")
+        print(f"Average creator ELO at creation: {np.mean(creator_elos):.2f}")
+        print(
+            f"Creator ELO range at creation: {min(creator_elos):.1f} - {max(creator_elos):.1f}"
+        )
+
+        # Show ELO distribution of post creators
+        user_elos = [user.elo for user in users]
+        print(f"Final user ELO range: {min(user_elos):.1f} - {max(user_elos):.1f}")
+        print(f"Final average user ELO: {np.mean(user_elos):.2f}")
+
+        # Count posts by CREATOR ELO quartiles (to show throttling bias properly)
+        # Use creator ELO distribution to avoid temporal mismatch issues
+        creator_elo_quartiles = np.percentile(creator_elos, [25, 50, 75])
+        q1, q2, q3 = creator_elo_quartiles
+
+        # By definition, each quartile has 25% of posts. Calculate throttling effect differently.
+        # Show the ELO range disparity and average ELO bias instead.
+        print(f"Throttling Analysis (Creator ELO at post creation):")
+        print(f"  Creator ELO range: {min(creator_elos):.1f} - {max(creator_elos):.1f}")
+        print(f"  Creator ELO average: {np.mean(creator_elos):.1f}")
+        print(f"  Population ELO average: {np.mean(user_elos):.1f}")
+
+        elo_bias = np.mean(creator_elos) - np.mean(user_elos)
+        print(f"  ELO bias (creators vs population): {elo_bias:+.1f} ELO points")
+
+        # Show quartile ranges to demonstrate the clustering effect you observed
+        print(f"  Creator ELO quartiles: Q1={q1:.1f}, Q2={q2:.1f}, Q3={q3:.1f}")
+        print(f"    Q1-Q3 range: {q3-q1:.1f} ELO points")
+
+        population_quartiles = np.percentile(user_elos, [25, 50, 75])
+        print(
+            f"  Population ELO quartiles: Q1={population_quartiles[0]:.1f}, Q2={population_quartiles[1]:.1f}, Q3={population_quartiles[2]:.1f}"
+        )
+        print(
+            f"    Q1-Q3 range: {population_quartiles[2]-population_quartiles[0]:.1f} ELO points"
+        )
+
+        if elo_bias > 0:
+            print(f"  → Throttling is working: Higher-ELO users create more posts")
+        else:
+            print(
+                f"  → Throttling may not be effective or population hasn't spread enough"
+            )
+
     plot_distributions(
         users,
+        posts,
         supported_posts_quality,
         correct_votes_stats,
         population_sizes,
@@ -369,6 +490,7 @@ def run_simulation(
         stage1_population_sizes,
         stage2_population_sizes,
         stage1_split,
+        elo_posting_scale,
     )
     return users
 
@@ -376,7 +498,10 @@ def run_simulation(
 def printStageResult(
     stage, post, votes, stage_result, users, users_stage_count, num_stage_users
 ):
-    print(f"Stage {stage} voting for Post {post.id} (Quality: {post.quality:.2f}):")
+    creator_info = f" (Created by User {post.creator.id}, ELO at creation: {post.creator_elo_at_creation:.1f})"
+    print(
+        f"Stage {stage} voting for Post {post.id}{creator_info} (Quality: {post.quality:.2f}):"
+    )
     print(
         f"Total users: {len(users)}; In stage: {users_stage_count}; Selected: {num_stage_users}"
     )
@@ -403,6 +528,7 @@ def aggregate_votes(votes, chunk_size):
 
 def plot_distributions(
     users,
+    posts,
     supported_posts_quality,
     correct_votes_stats,
     population_sizes,
@@ -413,25 +539,26 @@ def plot_distributions(
     stage1_population_sizes,
     stage2_population_sizes,
     stage1_split,
+    elo_posting_scale,
 ):
-    plt.figure(figsize=(15, 8))  # Adjusted figure size for 2x3 grid
+    plt.figure(figsize=(20, 8))  # Increased width for 2x4 grid
 
     # Subplot 1: Distribution of Users by Goodness Factor
-    plt.subplot(2, 3, 1)
-    plt.hist([user.goodness for user in users], bins=100, edgecolor="black")
+    plt.subplot(2, 4, 1)
+    plt.hist([user.goodness for user in users], bins=50, edgecolor="black")
     plt.xlabel("Goodness Factor")
     plt.ylabel("Number of Users")
     plt.title("Distribution of Users by Goodness Factor")
 
     # Subplot 2: Distribution of Users by Elo Rating
-    plt.subplot(2, 3, 2)
-    plt.hist([user.elo for user in users], bins=100, edgecolor="black", log=True)
+    plt.subplot(2, 4, 2)
+    plt.hist([user.elo for user in users], bins=50, edgecolor="black", log=True)
     plt.xlabel("Elo Rating")
     plt.ylabel("Number of Users")
     plt.title("Distribution of Users by Elo Rating")
 
     # Subplot 3: Correct Votes Ratio with Linear Regression
-    plt.subplot(2, 3, 3)
+    plt.subplot(2, 4, 3)
     if len(correct_votes_stats) > 10:
         if len(correct_votes_stats) < 50:
             window_size = min(10, len(correct_votes_stats))
@@ -506,14 +633,14 @@ def plot_distributions(
     plt.legend()
 
     # Subplot 4: Population Over Time
-    plt.subplot(2, 3, 4)
+    plt.subplot(2, 4, 4)
     plt.plot(range(len(population_sizes)), population_sizes, label="Population Size")
     plt.xlabel("Stage Index")
     plt.ylabel("Population Size")
     plt.title("Population Over Time")
 
     # Subplot 5: Sample Size Used Over Time
-    plt.subplot(2, 3, 5)
+    plt.subplot(2, 4, 5)
 
     # Aggregate sample sizes by taking max values over intervals
     target_points = 50  # Target number of data points to show
@@ -552,8 +679,110 @@ def plot_distributions(
 
     plt.legend()
 
-    # Subplot 6: Voting Participation Ratio Over Time (by user group)
-    plt.subplot(2, 3, 6)
+    # Subplot 6: Post Creation Bias by ELO Quartiles
+    plt.subplot(2, 4, 6)
+
+    if posts:
+        # Get ELO data - use creation-time ELO for posts
+        user_elos = [user.elo for user in users]  # Current ELO for users
+        creator_elos_at_creation = [
+            post.creator_elo_at_creation for post in posts
+        ]  # ELO at creation time
+
+        # Calculate quartiles based on ELO VALUE RANGE (not population percentiles)
+        # Split the ELO range into 4 equal intervals
+        min_elo = min(user_elos)
+        max_elo = max(user_elos)
+        elo_range = max_elo - min_elo
+
+        # Create 4 equal ELO intervals
+        q1 = min_elo + elo_range * 0.25
+        q2 = min_elo + elo_range * 0.50
+        q3 = min_elo + elo_range * 0.75
+        # q4 boundary is max_elo
+
+        # Count how many users are in each ELO quartile (can be uneven!)
+        user_counts = [
+            sum(1 for elo in user_elos if elo <= q1),  # Q1: lowest 25% of ELO range
+            sum(1 for elo in user_elos if q1 < elo <= q2),  # Q2: next 25% of ELO range
+            sum(1 for elo in user_elos if q2 < elo <= q3),  # Q3: next 25% of ELO range
+            sum(1 for elo in user_elos if elo > q3),  # Q4: highest 25% of ELO range
+        ]
+
+        # Count posts by population ELO quartiles (using CURRENT creator ELO)
+        # This shows: "Users currently in each quartile created how many posts?"
+        post_counts = [0, 0, 0, 0]
+        for post in posts:
+            creator_current_elo = post.creator.elo  # Current ELO of the creator
+            if creator_current_elo <= q1:
+                post_counts[0] += 1
+            elif creator_current_elo <= q2:
+                post_counts[1] += 1
+            elif creator_current_elo <= q3:
+                post_counts[2] += 1
+            else:
+                post_counts[3] += 1
+
+        # Calculate posts per user in each quartile (approximation)
+        # Note: This is approximate since we're using current user distribution vs creation-time post distribution
+        posts_per_user = [
+            post_counts[i] / user_counts[i] if user_counts[i] > 0 else 0
+            for i in range(4)
+        ]
+
+        # Calculate bias multiplier (compared to Q1 baseline)
+        if posts_per_user[0] > 0:
+            bias_multipliers = [rate / posts_per_user[0] for rate in posts_per_user]
+        else:
+            bias_multipliers = [1, 1, 1, 1]
+
+        # Create bar chart showing posts per user
+        x = np.arange(4)
+        colors = ["#ff9999", "#ffcc99", "#99ccff", "#99ff99"]  # Red to green gradient
+
+        bars = plt.bar(x, posts_per_user, color=colors, alpha=0.8, edgecolor="black")
+
+        plt.xlabel("ELO Range Quartiles")
+        plt.ylabel("Posts per User")
+        plt.title("Posts per User by ELO Range Quartile\n(Shows Throttling Bias)")
+        plt.xticks(
+            x,
+            [
+                f"Q1\n≤{q1:.0f}\n({user_counts[0]} users)",
+                f"Q2\n{q1:.0f}-{q2:.0f}\n({user_counts[1]} users)",
+                f"Q3\n{q2:.0f}-{q3:.0f}\n({user_counts[2]} users)",
+                f"Q4\n>{q3:.0f}\n({user_counts[3]} users)",
+            ],
+        )
+
+        # Add value labels on bars showing both rate and multiplier
+        for i, (bar, rate, mult) in enumerate(
+            zip(bars, posts_per_user, bias_multipliers)
+        ):
+            plt.text(
+                bar.get_x() + bar.get_width() / 2.0,
+                bar.get_height() + 0.02,
+                f"{rate:.2f}\n({mult:.1f}x)",
+                ha="center",
+                va="bottom",
+                fontsize=9,
+                bbox=dict(boxstyle="round,pad=0.2", facecolor="white", alpha=0.8),
+            )
+
+        plt.grid(True, alpha=0.3)
+        plt.ylim(0, max(posts_per_user) * 1.3)
+    else:
+        plt.text(
+            0.5,
+            0.5,
+            "No posts available",
+            ha="center",
+            va="center",
+            transform=plt.gca().transAxes,
+        )
+
+    # Subplot 7: Voting Participation Ratio Over Time (by user group)
+    plt.subplot(2, 4, 7)
 
     # Use a moving window to smooth the data
     window_size = min(50, len(cumulative_votes_list))
@@ -605,6 +834,105 @@ def plot_distributions(
     plt.ylabel("Vote Frequency (% of users voting per round)")
     plt.title("Voting Frequency by User Group")
     plt.legend()
+
+    # Subplot 8: ELO Throttling Function
+    plt.subplot(2, 4, 8)
+
+    if users:
+        # Get ELO range from actual users
+        user_elos = [user.elo for user in users]
+        min_elo = min(user_elos)
+        max_elo = max(user_elos)
+
+        # Create a smooth ELO range for plotting the curve
+        elo_range = np.linspace(min_elo - 50, max_elo + 50, 200)
+
+        # Calculate the throttling weights using the same logic as select_posting_users
+        mid_elo = (min_elo + max_elo) / 2
+        weights = []
+        for elo in elo_range:
+            # Normalize ELO to be centered around 0 relative to the midpoint
+            normalized_elo = (elo - mid_elo) / elo_posting_scale
+
+            # Apply sigmoid function: 1 / (1 + e^(-x))
+            sigmoid_weight = 1 / (1 + math.exp(-normalized_elo * 10))
+
+            # Use sigmoid weight directly
+            weight = sigmoid_weight
+            weights.append(weight)
+
+        # Normalize to show relative probability (0-1 scale)
+        max_weight = max(weights)
+        normalized_weights = [w / max_weight for w in weights]
+
+        # Plot the sigmoid curve
+        plt.plot(
+            elo_range,
+            normalized_weights,
+            "b-",
+            linewidth=3,
+            label=f"Scale={elo_posting_scale}",
+        )
+
+        # Add vertical lines showing ELO range quartiles (not population percentiles)
+        elo_range_span = max_elo - min_elo
+        q1 = min_elo + elo_range_span * 0.25
+        q2 = min_elo + elo_range_span * 0.50
+        q3 = min_elo + elo_range_span * 0.75
+
+        elo_quartiles = [q1, q2, q3]
+        colors = ["red", "orange", "green"]
+        labels = ["Q1 (25%)", "Q2 (50%)", "Q3 (75%)"]
+
+        for i, (q, color, label) in enumerate(zip(elo_quartiles, colors, labels)):
+            # Find the corresponding weight for this quartile ELO using the sigmoid function
+            normalized_q = (q - mid_elo) / elo_posting_scale
+            sigmoid_q_weight = 1 / (1 + math.exp(-normalized_q * 10))
+            q_weight = sigmoid_q_weight / max_weight
+
+            plt.axvline(
+                x=q, color=color, linestyle="--", alpha=0.7, label=f"{label}: {q:.0f}"
+            )
+            # Add a point showing the weight at this ELO
+            plt.plot(q, q_weight, "o", color=color, markersize=8, alpha=0.8)
+
+        # Add annotations showing the effect
+        plt.text(
+            0.02,
+            0.98,
+            f"Throttling Scale: {elo_posting_scale}",
+            transform=plt.gca().transAxes,
+            fontsize=10,
+            verticalalignment="top",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="lightblue", alpha=0.7),
+        )
+
+        plt.text(
+            0.02,
+            0.85,
+            f"Lower scale = More extreme throttling",
+            transform=plt.gca().transAxes,
+            fontsize=9,
+            verticalalignment="top",
+            bbox=dict(boxstyle="round,pad=0.2", facecolor="white", alpha=0.8),
+        )
+
+        plt.xlabel("User ELO Rating")
+        plt.ylabel("Relative Posting Probability")
+        plt.title("ELO-Based Posting Throttling\n(Sigmoid Function)")
+        plt.grid(True, alpha=0.3)
+        plt.legend(fontsize=8, loc="center right")
+        plt.xlim(min_elo - 30, max_elo + 30)
+        plt.ylim(0, 1.1)
+    else:
+        plt.text(
+            0.5,
+            0.5,
+            "No users available",
+            ha="center",
+            va="center",
+            transform=plt.gca().transAxes,
+        )
 
     plt.tight_layout()
     plt.show()
@@ -659,6 +987,12 @@ def main():
         help="K-factor for ELO calculations (default: 32)",
     )
     parser.add_argument(
+        "--elo-posting-scale",
+        type=int,
+        default=100,
+        help="ELO scale for posting probability (lower = more extreme throttling) (default: 100)",
+    )
+    parser.add_argument(
         "--stage1-split",
         type=int,
         default=70,
@@ -677,6 +1011,7 @@ def main():
         elo_start=args.elo_start,
         k_factor=args.k_factor,
         stage1_split=args.stage1_split,
+        elo_posting_scale=args.elo_posting_scale,
     )
 
     return users

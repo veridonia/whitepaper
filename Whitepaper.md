@@ -24,7 +24,7 @@ The prevailing model for information sharing suffers from several critical flaws
 4. **Opaque Decision-Making:** Hidden algorithmic processes limit transparency and accountability, fostering widespread mistrust ([4](https://doi.org/10.1177/1461444816676645)).
 5. **Negative Societal Impacts:** The relentless pursuit of engagement contributes significantly to mental health issues and decreased productivity ([5](https://doi.org/10.1080/02673843.2019.1590851)).
 
-### 3. Veridonia’s Proposed Solution
+### 3. Veridonia's Proposed Solution
 
 Veridonia introduces a transformative, community-driven approach to online content curation based on four foundational pillars:
 
@@ -91,6 +91,24 @@ The ELO-based reputation system is central to Veridonia's meritocratic model:
   2. Each user's new ELO is updated based on how their group's average compares to the opposing group's average, scaled by a predefined constant (K-factor).
   3. Winners gain ELO, moving their ratings upward towards the opposing group's average rating, whilst losers lose ELO, moving downward towards the winners' average.
   4. This method promotes accuracy and fairness by rewarding collective correct judgements and gradually increasing the decision-making influence of consistently accurate users.
+
+#### 4.5 ELO-Based Throttling Mechanism
+
+Veridonia implements a sophisticated throttling system that regulates users' ability to post and comment based on their ELO ratings:
+
+- **Rate Limiting:** Users with lower ELO ratings face greater restrictions on how frequently they can post content or comment. This throttling mechanism scales dynamically with ELO scores.
+- **Cooldown Periods:** After posting or commenting, users experience a mandatory cooldown period before they can contribute again. The duration of this cooldown is inversely proportional to their ELO rating.
+- **Progressive Relaxation:** As users demonstrate consistent quality contributions and their ELO increases, throttling restrictions are gradually relaxed, allowing for more frequent participation.
+
+The throttling mechanism serves several critical functions:
+
+1. **Quality Control:** By limiting the volume of content from users with lower reputation scores, the system naturally elevates the average quality of visible content.
+2. **Spam Prevention:** Rate limiting creates an effective barrier against automated spam and coordinated manipulation attempts.
+3. **Incentivizing Quality:** The direct relationship between contribution privileges and ELO motivates users to focus on thoughtful, community-aligned contributions rather than quantity.
+4. **Self-Regulation:** The system creates a natural self-regulatory environment where users who consistently provide low-quality content have diminished impact on the community.
+5. **Resource Management:** Throttling helps manage computational resources by preventing system overload from excessive low-quality submissions.
+
+This mechanism reinforces Veridonia's core principle that influence within the community should be earned through demonstrated alignment with community standards and quality contribution.
 
 ### 5. Transparency and Self-Governance
 

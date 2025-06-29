@@ -26,13 +26,16 @@ In this simulation:
     - **Stage 1:** A configurable number of users from the lower ELO tier (configurable split, default: bottom 70%) votes.
     - **Stage 2:** If Stage 1 has more support than opposition votes, a configurable number of users from the upper ELO tier (remaining percentage) votes to make the final decision.
   - All users participate in the voting process based on their ELO ranking, with no exclusions.
+- **ELO-Based Posting Throttling:** A sigmoid function determines posting probability based on user ELO, simulating API rate limiting where higher-reputation users can post more frequently. This creates a natural quality filter as users with better judgment get more opportunities to contribute content.
 - **ELO Adjustments:** User ratings are updated based on vote outcomes using team-based ELO updates with configurable K-factor.
 - **Visualization:** After simulation runs, various plots display:
   - Distribution of user goodness and ELO ratings
   - Correct votes ratio over time with linear regression analysis
   - Population growth over time
   - Sample sizes used in voting
-  - Voting participation ratios by user group (with dynamic labels reflecting actual configuration)
+  - Posting rates by ELO quartile (showing throttling effects)
+  - Voting participation ratios by user group
+  - ELO-based throttling function visualization
 
 ## Dependencies
 
@@ -77,6 +80,7 @@ The simulation supports extensive customization through command-line arguments:
 
 - `--elo-start` (default: 800) - Starting ELO rating for new users
 - `--k-factor` (default: 32) - K-factor for ELO calculations
+- `--elo-posting-scale` (default: 100) - Scale parameter for posting probability (lower = more extreme throttling)
 
 ## How to Run the Simulation
 
@@ -107,6 +111,9 @@ The simulation supports extensive customization through command-line arguments:
 
    # Different voting group sizes
    python simulation.py --stage1-users 3 --stage2-users 7
+
+   # Adjust posting throttling intensity (higher = less throttling)
+   python simulation.py --elo-posting-scale 50
 
    # Combination of parameters
    python simulation.py --max-population 2000 --stage1-split 80 --stage1-users 7
