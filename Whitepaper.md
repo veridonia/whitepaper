@@ -4,13 +4,13 @@
 
 ### Abstract
 
-Veridonia introduces a transformative approach to online content curation, addressing the limitations of conventional, engagement-driven systems that have fuelled sensationalism, misinformation, and the creation of echo chambers. ([1](https://doi.org/10.1016/j.tics.2021.02.007), [2](https://doi.org/10.1126/science.aao2998), [3](https://doi.org/10.1073/pnas.2023301118)) This whitepaper outlines the challenges posed by today's digital information ecosystem and details the design, architecture, and operational principles of Veridonia. Central to our approach is a multi-stage voting mechanism coupled with an ELO-based reputation system, which together foster transparency, meritocracy, and community governance. Veridonia's framework ensures that only high-quality, rigorously vetted information reaches the public domain whilst safeguarding user privacy and resisting external manipulation.
+Veridonia introduces a novel approach to online content curation, addressing the limitations of conventional, engagement-driven systems that have fuelled sensationalism, misinformation, and the creation of echo chambers. ([1](https://doi.org/10.1016/j.tics.2021.02.007), [2](https://doi.org/10.1126/science.aao2998), [3](https://doi.org/10.1073/pnas.2023301118)) This whitepaper outlines the challenges posed by today's digital information ecosystem and details the design, architecture, and operational principles of Veridonia. Central to our approach is a framework grounded in five key principles—including transparent governance, merit-based reputation, and randomized peer review—that together foster community-driven, trustworthy content curation.
 
 ### 1. Introduction
 
 The digital landscape today is dominated by engagement metrics such as views, likes, and shares, which serve as the primary indicators of content performance. This focus on the attention economy has led to the widespread prioritisation of sensationalist content over substantive information, contributing to the rapid spread of misinformation, the formation of ideological echo chambers, and a general decline in content quality. ([1](https://doi.org/10.1016/j.tics.2021.02.007), [2](https://doi.org/10.1126/science.aao2998), [3](https://doi.org/10.1073/pnas.2023301118)) Furthermore, opaque algorithms that dictate content visibility and maximise engagement at any cost have amplified mistrust and decreased accountability ([4](https://doi.org/10.1177/1461444816676645)).
 
-The current paradigm of social media platforms is fundamentally misaligned with the broader interests of society. Rather than facilitating meaningful information exchange, these systems have evolved into attention-capture mechanisms engineered to maximise screen time. Their algorithms prioritise engagement through psychological manipulation, often at the expense of informative or socially valuable content. As a result, content with the highest emotional appeal—not necessarily the highest quality—achieves the greatest visibility, while important discourse is frequently relegated to the margins.
+The current paradigm of social media platforms is increasingly misaligned with the broader interests of society. Rather than facilitating meaningful information exchange, these systems have evolved into attention-capture mechanisms engineered to maximise screen time. Their algorithms prioritise engagement through psychological manipulation, often at the expense of informative or socially valuable content. As a result, content with the highest emotional appeal—not necessarily the highest quality—achieves the greatest visibility, while important discourse is frequently relegated to the margins.
 
 Veridonia is conceived as a response to these challenges. By re-engineering the content curation process, Veridonia aims to restore public trust in online content and empower communities to determine quality based on transparent, verifiable standards rather than commercial or algorithmic bias.
 
@@ -26,7 +26,7 @@ The prevailing model for information sharing suffers from several critical flaws
 
 ### 3. Veridonia's Proposed Solution
 
-Veridonia introduces a transformative, community-driven approach to online content curation based on four foundational pillars:
+Veridonia introduces a novel, community-driven approach to online content curation based on five foundational pillars:
 
 **1. Sortition (Randomized Participant Selection)**  
 Participants evaluating content are randomly selected, ensuring fairness, diversity, and resistance to manipulation.
@@ -43,9 +43,11 @@ A structured, tiered voting mechanism balances efficiency with quality, using pr
 **5. Transparency and Auditability**  
 All moderation actions, votes, and reputation adjustments are publicly recorded, ensuring full transparency and enabling independent verification. This openness safeguards the integrity of the community governance model.
 
-This combined framework addresses critical flaws in traditional engagement-driven platforms, restoring trust and prioritizing content integrity.
+This combined framework seeks to address flaws in engagement-driven platforms, aiming to restore trust and prioritize content integrity.
 
 ### 4. System Architecture
+
+The following components detail the implementation of Veridonia’s five foundational pillars.
 
 #### 4.1 User Onboarding and Baseline Attributes
 
@@ -81,7 +83,7 @@ Veridonia employs a dynamic, two-stage voting mechanism designed for accuracy, t
 
 #### 4.4 ELO-Based Reputation System
 
-The ELO-based reputation system is central to Veridonia's meritocratic model:
+As one of Veridonia's five foundational pillars, the ELO-based reputation system plays a key role in supporting its meritocratic model:
 
 - **Dynamic Influence:** Users' ELO ratings not only reflect their decision-making accuracy but also serve as a gateway to enhanced moderation privileges. As users consistently align with community standards and see their ratings increase, they become eligible for promotion from the initial tier to higher groups—Stage 2 or Stage 3 group. These promotions grant them greater influence over content curation and the overall quality of the platform.
 - **Zero-Sum ELO Adjustments:** Post-evaluation, votes are compared against the post's assessed quality. Points are reallocated—users in the majority gain influence, whilst those in the minority see a corresponding decrease.
@@ -114,7 +116,7 @@ This mechanism reinforces Veridonia's core principle that influence within the c
 
 Veridonia is designed to be an open and self-regulating ecosystem:
 
-- **Public Auditability:** All voting records, ELO adjustments, and moderation actions are logged and accessible for independent review, emulating blockchain-like transparency.
+- **Public Auditability:** All voting records, ELO adjustments, and moderation actions are logged and accessible for independent review, emulating blockchain-like transparency. These community standards are shaped through historical voting patterns and collective moderation, and they evolve over time.
 - **Decentralised Moderation:** Governance is vested in the community, with every member (including guests) empowered to contribute, vote, and shape content standards.
 - **Data Privacy:** Whilst maintaining openness, Veridonia is committed to robust data privacy practices, allowing users to download and verify all activity history without compromising security.
 
@@ -126,9 +128,9 @@ Veridonia is designed to be an open and self-regulating ecosystem:
 
 ### 7. Conclusion
 
-Veridonia represents a bold new vision for online information sharing—a system that replaces opaque, engagement-driven algorithms with a transparent, community-powered model. Through its innovative multi-stage voting process and dynamic ELO-based reputation system, Veridonia ensures that only content meeting quality standards is published. In doing so, it addresses the deep-seated issues of misinformation, sensationalism, and algorithmic opacity prevalent in today's digital media landscape.
+Veridonia offers an alternative approach to online information sharing—one that emphasizes transparency, community participation, and accountability over engagement-driven metrics. Its multi-stage voting process and ELO-based reputation system are intended to elevate quality content and reduce the spread of misinformation and sensationalism.
 
-By restoring trust and empowering communities to govern their own content, Veridonia lays the groundwork for a more balanced and informed digital ecosystem. In an era where information is too often manipulated for profit and power, Veridonia stands as a beacon of integrity and transparency.
+While no system can entirely eliminate bias or error, Veridonia provides a framework that encourages more thoughtful and community-aligned curation. By enabling users to actively participate in content governance, it aims to contribute to a more informed and balanced digital ecosystem.
 
 ### References
 
