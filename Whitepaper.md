@@ -63,6 +63,8 @@ When a post is submitted, a random subset of relevant community members is selec
 
 Veridonia employs a dynamic, two-stage voting mechanism designed for accuracy, transparency, and scalability. The system operates similarly to a series of community referendums, where a small, carefully selected group of voters represents the broader community's likely preferences. This approach allows us to efficiently determine whether content should be published without requiring every community member to vote on every piece of content, whilst maintaining the integrity and accuracy of the decision-making process.
 
+The effectiveness of sortition depends heavily on community size. In larger communities, a broad participant pool makes random selection fairer and more resistant to manipulation. Smaller communities, by contrast, have fewer participants, which can make them more vulnerable to coordinated attacks—though in practice many niche groups remain relatively safe due to their focused interests and close-knit nature. The greater concern lies with very large, influential communities, such as those centred on politics, where attempts at coordinated domination are more likely. Here, Veridonia’s design scales effectively: the larger the pool of participants, the stronger the randomness, making coordinated manipulation significantly harder.
+
 - **Stage 1: Initial Filtering**
 
   - Participants: A random sample selected from users in the lower 70% ELO tier of all community members.
@@ -76,6 +78,10 @@ Veridonia employs a dynamic, two-stage voting mechanism designed for accuracy, t
   - Participants: A random sample from the top 30% ELO tier of all community members.
   - Decision Criterion: A simple majority finalises the content decision.
   - Outcome: The content is either approved ("publish") or rejected ("do not publish") based on the majority decision.
+
+---
+
+## Reputation adjustments are applied independently after each stage. This means participants in Stage 1 see their reputations updated based on that round’s outcome, and participants in Stage 2 receive a separate update based on the final decision.
 
 - **Special Conditions:**
 
@@ -94,11 +100,14 @@ As one of Veridonia's five foundational pillars, the ELO-based reputation system
   3. Winners gain ELO, moving their ratings upward towards the opposing group's average rating, whilst losers lose ELO, moving downward towards the winners' average.
   4. This method promotes accuracy and fairness by rewarding collective correct judgements and gradually increasing the decision-making influence of consistently accurate users.
 
+**Community-Specific Reputation**  
+Reputation is maintained separately within each community, meaning that a user's performance and standing in one community do not carry over into another. This design prevents the emergence of “universal elites” who dominate multiple communities and ensures that influence is contextual, reflecting expertise and alignment within each distinct group. As a result, reputation—and therefore influence—is always earned locally within each community, never transferred globally across the platform.
+
 #### 4.5 ELO-Based Throttling Mechanism
 
 Veridonia implements a sophisticated throttling system that regulates users' ability to post and comment based on their ELO ratings:
 
-- **Rate Limiting:** Users with lower ELO ratings face greater restrictions on how frequently they can post content or comment. This throttling mechanism scales dynamically with ELO scores.
+- **Rate Limiting:** Users with lower ELO ratings face greater restrictions on how frequently they can post content or comment. This throttling mechanism scales dynamically with ELO scores, and users with particularly low reputation may be limited to posting only once per hour, per day, or even per week, depending on the severity of their low ELO.
 - **Cooldown Periods:** After posting or commenting, users experience a mandatory cooldown period before they can contribute again. The duration of this cooldown is inversely proportional to their ELO rating.
 - **Progressive Relaxation:** As users demonstrate consistent quality contributions and their ELO increases, throttling restrictions are gradually relaxed, allowing for more frequent participation.
 
@@ -117,12 +126,17 @@ This mechanism reinforces Veridonia's core principle that influence within the c
 Veridonia is designed to be an open and self-regulating ecosystem:
 
 - **Public Auditability:** All voting records, ELO adjustments, and moderation actions are logged and accessible for independent review, emulating blockchain-like transparency. These community standards are shaped through historical voting patterns and collective moderation, and they evolve over time.
-- **Decentralised Moderation:** Governance is vested in the community, with every member (including guests) empowered to contribute, vote, and shape content standards.
-- **Data Privacy:** Whilst maintaining openness, Veridonia is committed to robust data privacy practices, allowing users to download and verify all activity history without compromising security.
+- **Decentralised Moderation:** Governance is vested in the community, with every member (including guests) empowered to contribute, vote, and shape content standards. Moderation rights are held by approximately the top 10% of users in a community by reputation, who are able to soft-delete posts to uphold standards. Every moderation action is publicly logged, ensuring accountability, and any such action can be appealed by the broader community through a randomized jury voting process.
+
+**Privacy by Design and Data Control:**  
+Veridonia does not require sign-up to participate and does not track users across the web. The system only uses minimal signals necessary for fairness—for example, new accounts inherit the lowest reputation from their IP to discourage bot farms. Beyond this, reputation is tied entirely to actions within the platform: voting, posting, and how those decisions align with the community.
+
+At the same time, users retain full control of their data. All activity histories can be accessed and verified without compromising security, reinforcing both transparency and individual privacy.
 
 ### 6. Additional Core Principles
 
-- **Independence from Advertiser Influence:** Veridonia is free from advertiser funding, ensuring that content curation remains unbiased and dictated solely by community standards.
+- **Independence from Advertiser Influence:** Veridonia is free from advertiser funding, ensuring that content curation remains unbiased and dictated solely by community standards. The platform will never employ advertising as a monetisation strategy. Instead, future revenue models may involve subscriptions or donations, but public benefit content—such as community feeds—will always remain free to access. Only private benefit features may be offered as paid options, balancing sustainability with Veridonia’s commitment to open access and public good.
+
 - **Integrity in Information Sharing:** By prioritising transparency and quality, Veridonia mitigates the risks of misinformation and preserves the integrity of the information ecosystem.
 - **User Empowerment:** The platform is structured to empower users, granting them direct oversight of the content curation process without the interference of centralised authorities.
 
