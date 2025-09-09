@@ -79,13 +79,11 @@ The effectiveness of sortition depends heavily on community size. In larger comm
   - Decision Criterion: A simple majority finalises the content decision.
   - Outcome: The content is either approved ("publish") or rejected ("do not publish") based on the majority decision.
 
----
-
-## Reputation adjustments are applied independently after each stage. This means participants in Stage 1 see their reputations updated based on that round’s outcome, and participants in Stage 2 receive a separate update based on the final decision.
-
 - **Special Conditions:**
 
   - For populations with fewer than 20 community members, a simplified single-stage voting process is employed, with participants selected randomly from all available users.
+
+Reputation adjustments are applied independently after each stage. This means participants in Stage 1 see their reputations updated based on that round’s outcome, and participants in Stage 2 receive a separate update based on the final decision.
 
 #### 4.4 ELO-Based Reputation System
 
