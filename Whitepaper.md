@@ -4,7 +4,7 @@
 
 ### Abstract
 
-Veridonia introduces a novel approach to online content curation, addressing the limitations of conventional, engagement-driven systems that have fuelled sensationalism, misinformation, and the creation of echo chambers. ([1](https://doi.org/10.1016/j.tics.2021.02.007), [2](https://doi.org/10.1126/science.aao2998), [3](https://doi.org/10.1073/pnas.2023301118)) This whitepaper outlines the challenges posed by today's digital information ecosystem and details the design, architecture, and operational principles of Veridonia. Central to our approach is a framework grounded in five key principles—including transparent governance, merit-based reputation, and randomized peer review—that together foster community-driven, trustworthy content curation.
+Veridonia is an experiment that introduces a novel approach to online content curation, addressing the limitations of conventional, engagement-driven systems that have fuelled sensationalism, misinformation, and the creation of echo chambers. ([1](https://doi.org/10.1016/j.tics.2021.02.007), [2](https://doi.org/10.1126/science.aao2998), [3](https://doi.org/10.1073/pnas.2023301118)) This whitepaper outlines the challenges posed by today's digital information ecosystem and details the design, architecture, and operational principles of Veridonia. Central to our approach is a framework grounded in five key principles—including transparent governance, merit-based reputation, and randomized peer review—that together foster community-driven, trustworthy content curation.
 
 ### 1. Introduction
 
@@ -138,11 +138,13 @@ At the same time, users retain full control of their data. All activity historie
 
 ### 7. Conclusion
 
-Veridonia is an experiment in community‑driven curation. It introduces sortition, tiered voting, and ELO‑based reputation as alternatives to opaque engagement incentives. The aim is not to “fix” online discourse but to explore whether these mechanisms produce better and more trustworthy online feeds or simply different failure modes.
+Veridonia is an experiment in community‑driven curation. By pairing sortition and tiered voting with an ELO‑based reputation, it exchanges engagement optimisation for incentives that make judgement matter: low‑quality contributions carry reputational and throttling costs, while careful, community‑aligned decisions expand a user’s influence. The hypothesis is straightforward: if incentives reward diligence and shared standards, the system should produce online feeds that are higher in quality and more trustworthy.
 
-The next step is empirical: pilot deployments and measurement under adversarial conditions. Key questions include capture resistance, quality of published posts and decision efficiency.
+The next step is empirical: pilot deployments, red‑team pressure, and measurement. We will track content quality, capture resistance, decision latency vs. accuracy, fairness of IP‑based inheritance, and the usability of the audit trail. Some elements (e.g., cross‑community stewards) remain open for design.
 
-Ultimately, Veridonia is a falsifiable proposal. If outcomes under real use are worse than baselines, it should be revised or abandoned; if they are better, the system may be worth iterating on. We invite researchers and communities to test, critique, and adapt these ideas.
+A second question is sustainability. We will evaluate whether a non‑advertising model—driven by voluntary support or subscriptions—can fund operations without distorting incentives, while keeping core public‑benefit features open.
+
+Ultimately, Veridonia is a falsifiable proposal. If outcomes under real use do not beat practical baselines—or if funding compromises the aims—it should be revised or retired. If they do, the system may be worth iterating on. We invite researchers and communities to test, critique, and adapt these ideas.
 
 ### References
 
