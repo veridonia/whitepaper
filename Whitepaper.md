@@ -138,7 +138,7 @@ At the same time, users retain full control of their data. All activity historie
 
 ### 7. Conclusion
 
-Veridonia is an experiment in community‑driven curation. It introduces sortition, tiered voting, and ELO‑based reputation as alternatives to opaque engagement incentives. The aim is not to “fix” online discourse but to explore whether these mechanisms produce better more trustworthy online feeds or simply different failure modes.
+Veridonia is an experiment in community‑driven curation. It introduces sortition, tiered voting, and ELO‑based reputation as alternatives to opaque engagement incentives. The aim is not to “fix” online discourse but to explore whether these mechanisms produce better and more trustworthy online feeds or simply different failure modes.
 
 The next step is empirical: pilot deployments and measurement under adversarial conditions. Key questions include capture resistance, quality of published posts and decision efficiency.
 
