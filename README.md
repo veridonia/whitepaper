@@ -16,7 +16,7 @@ The system rests on five principles: sortition (random selection), consensus (ma
 
 For the complete design, read the whitepaper included in this repository:
 
-**→ [Veridonia Whitepaper](Whitepaper.md)**
+**→ [Veridonia Whitepaper](Whitepaper.pdf)**
 
 The whitepaper covers the problem analysis, system architecture, voting mechanisms, ELO calculations, IP-based inheritance, throttling, moderation, and the empirical questions we'd need to answer in real deployment.
 
