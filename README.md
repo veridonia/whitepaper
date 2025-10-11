@@ -1,159 +1,115 @@
-# Veridonia Simulation
+![Veridonia Logo](assets/logo-veridonia.svg)
 
-This repository contains a simulation of the Veridonia content curation system. The simulation implements a community-driven multi-stage voting process paired with an ELO-based reputation system. It is based on the principles outlined in the [Veridonia Whitepaper](Whitepaper.md) included in this repository. Some differences in implementation exist to better suit the simulation environment.
+**Transparent and Scalable Community-Driven Information Curation**
 
-## Overview
+---
 
-Veridonia is designed to improve online content curation by promoting transparency, meritocracy, and community governance. Instead of relying on opaque, engagement-driven algorithms that fuel sensationalism and misinformation, Veridonia leverages a multi-stage voting mechanism and dynamic reputation adjustments to evaluate content quality.
+## What is Veridonia?
 
-In this simulation:
+Veridonia is an experiment in content curation that replaces engagement metrics with community-driven multi-stage voting. Instead of optimizing for clicks and shares, it uses randomized selection and an ELO rating system where influence is earned through demonstrated judgment.
 
-- **Users** are modeled with a configurable baseline ELO rating (default: 800) and a "goodness" factor, which influences their voting behavior.
-- **Posts** have a quality score between 0 and 1, with each user creating a configurable number of posts (default: 2).
-- A **multi-stage voting process** determines whether a post is supported or opposed, with users selected based on their ELO ratings.
+The system rests on five principles: sortition (random selection), consensus (majority voting), ELO-based rating, multi-stage review, and full transparency of all votes and rating changes.
 
-- The simulation features a growing user population up to a configurable maximum (default: 5,000 users), mimicking a realistic social platform environment.
-- **Simple majority voting** is used at all stages - posts need more support than opposition votes to advance or be published.
+---
 
-## Features
+## The Whitepaper
 
-- **Configurable Parameters:** All major simulation parameters can be adjusted via command-line arguments.
-- **User Modeling:** Each user has attributes including ELO, goodness, mood factor, and a vote count.
-- **Voting Mechanism:** Users vote on posts based on a combination of their adjusted goodness (affected by mood) and the quality of the post.
-- **Multi-Stage Voting:**
-  - For populations with fewer than 20 users, a single stage of voting is performed.
-  - For larger populations, a two-stage process is used:
-    - **Stage 1:** A configurable number of users from the lower ELO tier (configurable split, default: bottom 70%) votes.
-    - **Stage 2:** If Stage 1 has more support than opposition votes, a configurable number of users from the upper ELO tier (remaining percentage) votes to make the final decision.
-  - All users participate in the voting process based on their ELO ranking, with no exclusions.
-- **ELO-Based Posting Throttling:** A sigmoid function determines posting probability based on user ELO, simulating API rate limiting where higher-reputation users can post more frequently. This creates a natural quality filter as users with better judgment get more opportunities to contribute content.
-- **ELO Adjustments:** User ratings are updated based on vote outcomes using team-based ELO updates with configurable K-factor.
-- **Visualization:** After simulation runs, various plots display:
-  - Distribution of user goodness and ELO ratings
-  - Correct votes ratio over time with linear regression analysis
-  - Population growth over time
-  - Sample sizes used in voting
-  - Posting rates by ELO quartile (showing throttling effects)
-  - Voting participation ratios by user group
-  - ELO-based throttling function visualization
+For the complete design, read the whitepaper included in this repository:
 
-## Dependencies
+**→ [Veridonia Whitepaper](Whitepaper.md)**
 
-The simulation requires the following Python packages:
+The whitepaper covers the problem analysis, system architecture, voting mechanisms, ELO calculations, IP-based inheritance, throttling, moderation, and the empirical questions we'd need to answer in real deployment.
 
-- Python 3.x
-- [NumPy](https://numpy.org/)
-- [Matplotlib](https://matplotlib.org/)
-- [termcolor](https://pypi.org/project/termcolor/)
-- [tqdm](https://tqdm.github.io/)
-- [SciPy](https://www.scipy.org/) (for statistical functions)
+---
 
-You can install the required packages using pip:
+## The Simulation
 
-```bash
-pip install numpy matplotlib termcolor tqdm scipy
-```
+This repository contains a Python implementation of Veridonia's core mechanics. It's simplified—no IP inheritance, no communities, no real user behavior—but it captures the essential question: does multi-stage voting with ELO-based selection improve content quality over time?
 
-Or using the provided requirements file:
+### Installation
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Command Line Interface
+### Usage
 
-The simulation supports extensive customization through command-line arguments:
+Run with defaults:
 
-### Population & Content Parameters
+```bash
+python simulation.py
+```
 
-- `--max-population` (default: 5000) - Maximum population size
-- `--posts-per-user` (default: 2) - Posts per user
-- `--growth-rate` (default: 0.10) - Population growth rate
+Common variations:
 
-### Voting Stage Parameters
+```bash
+# Faster, smaller simulation
+python simulation.py --max-population 1000 --posts-per-user 1
 
-- `--stage1-users` (default: 5) - Number of users in stage 1 voting
-- `--stage2-users` (default: 5) - Number of users in stage 2 voting
-- `--stage1-split` (default: 70) - Percentage of users for stage 1 (remaining go to stage 2)
+# Change the stage split
+python simulation.py --stage1-split 50  # 50/50 instead of 70/30
 
-### ELO System Parameters
+# More volatile ratings
+python simulation.py --k-factor 64
 
-- `--elo-start` (default: 800) - Starting ELO rating for new users
-- `--k-factor` (default: 32) - K-factor for ELO calculations
-- `--elo-posting-scale` (default: 100) - Scale parameter for posting probability (lower = more extreme throttling)
+# Stricter throttling
+python simulation.py --elo-posting-scale 50
+```
 
-## How to Run the Simulation
+See all options:
 
-1. **Clone the Repository:**
+```bash
+python simulation.py --help
+```
 
-   ```bash
-   git clone https://github.com/yourusername/veridonia-simulation.git
-   cd veridonia-simulation
-   ```
+### Reading the output
 
-2. **Run the Simulation with Default Parameters:**
+The simulation produces four plots.
 
-   ```bash
-   python simulation.py
-   ```
+**Distribution of User Goodness**
 
-3. **Run with Custom Parameters:**
+Shows the distribution of innate ability to judge content quality. Users above 0.5 tend to vote correctly; users below 0.5 don't. In a well-functioning system, users above 0.5 users should accumulate higher ELO over time.
 
-   ```bash
-   # Smaller, faster simulation
-   python simulation.py --max-population 1000 --posts-per-user 1
+**Distribution of Users by ELO Rating**
 
-   # Different stage split (50/50 instead of 70/30)
-   python simulation.py --stage1-split 50
+Shows how ELO spreads across the population and where the voting tiers fall. Stage 1 voters are the bottom 70% by user count (blue). Stage 2 voters are the top 30% (orange). The dashed line marks the top 1%, who would have moderation privileges in a real system.
 
-   # Custom ELO parameters
-   python simulation.py --elo-start 1000 --k-factor 16
+**Correct Votes Ratio Over Time**
 
-   # Different voting group sizes
-   python simulation.py --stage1-users 3 --stage2-users 7
+Tracks what fraction of voters aligned with actual content quality at each iteration. The regression line shows the trend. An upward slope means the system is getting better at selecting accurate voters.
 
-   # Adjust posting throttling intensity (higher = less throttling)
-   python simulation.py --elo-posting-scale 50
+**Population Growth Over Time**
 
-   # Combination of parameters
-   python simulation.py --max-population 2000 --stage1-split 80 --stage1-users 7
-   ```
+Shows growth rate over time. Useful for context when comparing different parameter configurations.
 
-4. **View All Available Options:**
+### Parameters
 
-   ```bash
-   python simulation.py --help
-   ```
+**Population and content:**
 
-## Voting System Details
+- `--max-population` (default: 5000)
+- `--posts-per-user` (default: 2)
+- `--growth-rate` (default: 0.05)
 
-The simulation uses a **simple majority voting system**:
+**Voting structure:**
 
-- **Stage 1:** If more users support than oppose, the post advances to Stage 2
-- **Stage 2:** If more users support than oppose, the post is published; otherwise rejected
-- **Single Stage:** (when <20 users total) If more users support than oppose, the post is published
+- `--stage1-users` (default: 5)
+- `--stage2-users` (default: 5)
+- `--stage1-split` (default: 70)
 
-This simplified approach focuses on democratic decision-making while maintaining the two-tier review structure where higher-ELO users have the final say.
+**ELO dynamics:**
 
-## Relationship to the Whitepaper
-
-This simulation serves as a practical implementation of the theoretical framework described in the [Veridonia Whitepaper](Whitepaper.md). While the whitepaper provides the complete conceptual principles and governance model, this simulation focuses specifically on testing the effectiveness of the multi-stage voting and ELO-based reputation mechanisms.
-
-The whitepaper covers additional topics not implemented in this simulation, including:
-
-- Detailed discussion of problems with current content curation systems
-- More comprehensive governance frameworks
-- Data privacy considerations
-- Long-term vision for transparent information ecosystems
-
-For a deeper understanding of the Veridonia concept, please refer to the whitepaper.
-
-## Acknowledgements
-
-This simulation is a proof-of-concept implementation based on the principles outlined in the Veridonia whitepaper. It aims to explore the potential of community-driven content curation and transparent reputation systems.
+- `--elo-start` (default: 800)
+- `--k-factor` (default: 32)
+- `--elo-posting-scale` (default: 100)
 
 ---
 
-Feel free to contribute, report issues, or suggest improvements by opening an issue or pull request in the repository.
+## Contributing
 
-Happy simulating!
+Your contributions are WELCOME. If you find edge cases, propose better metrics, identify flaws in the rating mechanism, or want to test different configurations, open an issue or submit a pull request.
+
+---
+
+## License
+
+Open source.

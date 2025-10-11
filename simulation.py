@@ -13,13 +13,12 @@ class User:
         self.id = id
         self.elo = elo
         self.goodness = self.generate_goodness()
-        self.mood_factor = random.uniform(0, 0.1)  # Random value from 0 to 0.1
+        self.mood_factor = random.uniform(0.05, 0.15)
         self.adjusted_goodness = self.goodness
-        self.vote_count = 0
 
     def generate_goodness(self):
-        goodness = np.random.exponential(scale=0.3)  # Adjusted scale to 0.3
-        if goodness > 1:
+        goodness = np.random.exponential(scale=0.3)
+        if goodness >= 1:
             goodness = np.random.uniform()
         return goodness
 
@@ -37,23 +36,14 @@ class Post:
     def __init__(self, id, creator_user):
         self.id = id
         self.creator = creator_user
-        self.creator_elo_at_creation = creator_user.elo  # Store ELO at time of creation
-        # Post quality is influenced by creator's goodness with some randomness
-        # Base quality from user's goodness, plus random variation
+        self.creator_elo_at_creation = creator_user.elo
         base_quality = creator_user.goodness
-        random_variation = random.uniform(-0.2, 0.2)  # ±20% variation
+        random_variation = random.uniform(-0.2, 0.2)
         self.quality = max(0, min(1, base_quality + random_variation))
 
 
-def elo_update(winner_elo, loser_elo, k=32):
-    expected_score = 1 / (1 + 10 ** ((loser_elo - winner_elo) / 400))
-    new_winner_elo = winner_elo + k * (1 - expected_score)
-    new_loser_elo = loser_elo - k * (1 - expected_score)
-    return new_winner_elo, new_loser_elo
-
-
 def vote(user, post):
-    user.apply_mood()  # Update adjusted goodness before voting
+    user.apply_mood()
     if post.quality >= 0.5:
         vote_decision = (
             "support"
@@ -66,7 +56,6 @@ def vote(user, post):
             if random.uniform(0, 1) < user.adjusted_goodness
             else random.choice(["oppose", "support"])
         )
-    user.vote_count += 1
     return vote_decision
 
 
@@ -97,7 +86,6 @@ def stage_voting(stage_users, post, k_factor=32):
     else:
         return votes, stage_decision
     if not losing_team:
-        # No ELO change when there's no opposing team
         pass
     else:
         average_winner_elo = sum(user.elo for user in winning_team) / len(winning_team)
@@ -112,7 +100,7 @@ def stage_voting(stage_users, post, k_factor=32):
         for user in winning_team:
             user.elo += change_per_winner
         for user in losing_team:
-            user.elo += change_per_loser  # (it's negative, so they lose Elo)
+            user.elo += change_per_loser
     return votes, stage_decision
 
 
@@ -127,7 +115,6 @@ def elo_update_team(winner_avg_elo, loser_avg_elo, k=32, winner_size=1, loser_si
 
 
 def count_votes(votes):
-    """Helper function to count support and oppose votes and determine if majority supported."""
     support_votes = sum(1 for _, vote in votes if vote == "support")
     oppose_votes = sum(1 for _, vote in votes if vote == "oppose")
     total_votes = len(votes)
@@ -220,11 +207,8 @@ def multi_stage_voting(
     N = len(sorted_users)
     sample_size = 0
 
-    # Lists to track which users participated in each stage
     stage1_participants = []
     stage2_participants = []
-
-    # If there are less than 20 filtered users, perform single stage voting
     if N < 20:
         stage_users = (
             sorted_users
@@ -233,11 +217,7 @@ def multi_stage_voting(
         )
         votes, stage_decision = stage_voting(stage_users, post, k_factor=k_factor)
         sample_size += len(votes)
-        stage1_participants = [
-            user for user, _ in votes
-        ]  # Consider these as stage 1 participants
-
-        # Check if single stage has more support than oppose votes to publish
+        stage1_participants = [user for user, _ in votes]
         support_votes, oppose_votes, total_votes, majority_supported = count_votes(
             votes
         )
@@ -247,7 +227,6 @@ def multi_stage_voting(
         else:
             decision = "oppose"
     else:
-        # Stage 1: Bottom X% of the filtered users
         stage1_group = sorted_users[: int(stage1_split / 100.0 * N)]
         stage1_selected_users = (
             stage1_group
@@ -257,15 +236,12 @@ def multi_stage_voting(
         votes1, _ = stage_voting(stage1_selected_users, post, k_factor=k_factor)
         sample_size += len(votes1)
         stage1_participants = [user for user, _ in votes1]
-
-        # Check if stage 1 has more support than oppose votes to advance to stage 2
         support_votes, oppose_votes, total_votes, majority_supported = count_votes(
             votes1
         )
 
         if total_votes > 0:
             if majority_supported:
-                # Stage 1 has more support than oppose votes, advance to Stage 2
                 stage2_group = sorted_users[int(stage1_split / 100.0 * N) :]
                 stage2_selected_users = (
                     stage2_group
@@ -275,8 +251,6 @@ def multi_stage_voting(
                 votes2, _ = stage_voting(stage2_selected_users, post, k_factor=k_factor)
                 sample_size += len(votes2)
                 stage2_participants = [user for user, _ in votes2]
-
-                # Check if stage 2 has more support than oppose votes to publish
                 stage2_support_votes, stage2_oppose_votes, stage2_total_votes, _ = (
                     count_votes(votes2)
                 )
@@ -291,7 +265,6 @@ def multi_stage_voting(
                 else:
                     votes, decision = votes2, "oppose"
             else:
-                # Stage 1 doesn't have more support than oppose votes, reject without going to stage 2
                 votes, decision = votes1, "oppose"
         else:
             votes, decision = votes1, "oppose"
@@ -308,7 +281,7 @@ def multi_stage_voting(
 def run_simulation(
     max_population=5000,
     posts_per_user=2,
-    growth_rate=0.10,
+    growth_rate=0.01,
     stage1_users=5,
     stage2_users=5,
     elo_start=800,
@@ -319,65 +292,50 @@ def run_simulation(
 
     with tqdm(total=max_population, desc="Growing user population") as pbar:
         posts = []
-        supported_posts_quality = []
         supported_posts_count = 0
         total_votes = 0
         correct_votes = 0
         correct_votes_stats = []
-        votes_stats = []
         population_sizes = []
-        sample_sizes = []
-        cumulative_votes_list = []
         users = []
 
         # Track participants count from each group
         stage1_participants_count = []
         stage2_participants_count = []
-
-        # Track population of each group over time
         stage1_population_sizes = []
         stage2_population_sizes = []
 
-        population_increment = 1.0  # Start by adding 1 user at a time
+        population_increment = 1.0
         while len(users) < max_population:
-            new_count = min(
-                math.ceil(population_increment), max_population - len(users)
-            )
-            new_users = [
-                User(i, elo=elo_start)
-                for i in range(len(users), len(users) + new_count)
-            ]
-            users.extend(new_users)
+            new_count = min(int(population_increment), max_population - len(users))
 
-            # Calculate how many posts should be created this iteration
-            posts_to_create = posts_per_user * new_count
+            if new_count > 0:
+                new_users = [
+                    User(i, elo=elo_start)
+                    for i in range(len(users), len(users) + new_count)
+                ]
+                users.extend(new_users)
 
-            # Select users who will create posts (probabilistically based on ELO)
-            posting_users = select_posting_users(
-                users, posts_to_create, elo_posting_scale
-            )
+                posts_to_create = posts_per_user * new_count
+                posting_users = select_posting_users(
+                    users, posts_to_create, elo_posting_scale
+                )
 
-            # Create posts with their creators
-            new_posts = []
-            for i, creator in enumerate(posting_users):
-                post_id = len(posts) + i
-                new_post = Post(post_id, creator)
-                new_posts.append(new_post)
+                new_posts = []
+                for i, creator in enumerate(posting_users):
+                    post_id = len(posts) + i
+                    new_post = Post(post_id, creator)
+                    new_posts.append(new_post)
 
-            posts.extend(new_posts)
+                posts.extend(new_posts)
 
-            for post in new_posts:
-                # Record group populations at this point
+            for post in new_posts if new_count > 0 else []:
                 sorted_users = sorted(users, key=lambda u: u.elo)
-                # Stage 1: Bottom X%
                 stage1_group_size = int(stage1_split / 100.0 * len(sorted_users))
-                # Stage 2: Top (100-X)%
                 stage2_group_size = len(sorted_users) - stage1_group_size
 
                 stage1_population_sizes.append(stage1_group_size)
                 stage2_population_sizes.append(stage2_group_size)
-
-                # Regular staged voting
                 (
                     votes,
                     decision,
@@ -392,9 +350,7 @@ def run_simulation(
                     k_factor,
                     stage1_split,
                 )
-                total_votes += 1  # Count one final decision per post
-
-                # Store participants count from each group
+                total_votes += 1
                 stage1_participants_count.append(len(stage1_participants))
                 stage2_participants_count.append(len(stage2_participants))
 
@@ -408,29 +364,21 @@ def run_simulation(
                 else:
                     correct_votes_stats.append(0)
 
-                votes_stats.append((post.id, decision))
                 if decision == "support":
                     supported_posts_count += 1
-                    supported_posts_quality.append(post.quality)
+            if new_count > 0:
+                population_sizes.append(len(users))
+                pbar.update(new_count)
+                pbar.set_postfix(current=len(users))
 
-                cumulative_votes_list.append(total_votes)
-                sample_sizes.append(post_sample_size)
-
-            # Append the population size once per iteration
-            population_sizes.append(len(users))
-            pbar.update(new_count)
-            pbar.set_postfix(current=len(users))
             population_increment *= 1 + growth_rate
     print(f"Number of posts supported through all voting: {supported_posts_count}")
     print(f"Number of correct votes: {correct_votes}")
     print(f"Total number of votes: {total_votes}")
     print(f"Correct votes: {(correct_votes / total_votes) * 100:.2f}%")
 
-    # Show post creation statistics
     if posts:
-        creator_elos = [
-            post.creator_elo_at_creation for post in posts
-        ]  # Use ELO at creation time
+        creator_elos = [post.creator_elo_at_creation for post in posts]
         print(f"\nPost Creation Statistics:")
         print(f"Total posts created: {len(posts)}")
         print(f"Average creator ELO at creation: {np.mean(creator_elos):.2f}")
@@ -438,18 +386,13 @@ def run_simulation(
             f"Creator ELO range at creation: {min(creator_elos):.1f} - {max(creator_elos):.1f}"
         )
 
-        # Show ELO distribution of post creators
         user_elos = [user.elo for user in users]
         print(f"Final user ELO range: {min(user_elos):.1f} - {max(user_elos):.1f}")
         print(f"Final average user ELO: {np.mean(user_elos):.2f}")
 
-        # Count posts by CREATOR ELO quartiles (to show throttling bias properly)
-        # Use creator ELO distribution to avoid temporal mismatch issues
         creator_elo_quartiles = np.percentile(creator_elos, [25, 50, 75])
         q1, q2, q3 = creator_elo_quartiles
 
-        # By definition, each quartile has 25% of posts. Calculate throttling effect differently.
-        # Show the ELO range disparity and average ELO bias instead.
         print(f"Throttling Analysis (Creator ELO at post creation):")
         print(f"  Creator ELO range: {min(creator_elos):.1f} - {max(creator_elos):.1f}")
         print(f"  Creator ELO average: {np.mean(creator_elos):.1f}")
@@ -458,7 +401,6 @@ def run_simulation(
         elo_bias = np.mean(creator_elos) - np.mean(user_elos)
         print(f"  ELO bias (creators vs population): {elo_bias:+.1f} ELO points")
 
-        # Show quartile ranges to demonstrate the clustering effect you observed
         print(f"  Creator ELO quartiles: Q1={q1:.1f}, Q2={q2:.1f}, Q3={q3:.1f}")
         print(f"    Q1-Q3 range: {q3-q1:.1f} ELO points")
 
@@ -479,86 +421,152 @@ def run_simulation(
 
     plot_distributions(
         users,
-        posts,
-        supported_posts_quality,
         correct_votes_stats,
         population_sizes,
-        sample_sizes,
-        cumulative_votes_list,
-        stage1_participants_count,
-        stage2_participants_count,
-        stage1_population_sizes,
-        stage2_population_sizes,
-        stage1_split,
-        elo_posting_scale,
     )
     return users
 
 
-def printStageResult(
-    stage, post, votes, stage_result, users, users_stage_count, num_stage_users
-):
-    creator_info = f" (Created by User {post.creator.id}, ELO at creation: {post.creator_elo_at_creation:.1f})"
-    print(
-        f"Stage {stage} voting for Post {post.id}{creator_info} (Quality: {post.quality:.2f}):"
-    )
-    print(
-        f"Total users: {len(users)}; In stage: {users_stage_count}; Selected: {num_stage_users}"
-    )
-    for user, vote in votes:
-        color_mapping = {"support": "green", "oppose": "red", "draw": "yellow"}
-        vote_colored = colored(vote, color_mapping.get(vote, "default_color"))
-        print(
-            f"User {user.id} (Adj. Goodness: {user.adjusted_goodness:.2f}, ELO: {user.elo:.2f}) voted {vote_colored}"
-        )
-    stage_result_colored = colored(
-        stage_result, color_mapping.get(stage_result, "default_color")
-    )
-    print(f"Stage {stage} majority decision: {stage_result_colored}\n")
-
-
-def aggregate_votes(votes, chunk_size):
-    aggregated_data = []
-    for i in range(0, len(votes), chunk_size):
-        chunk = votes[i : i + chunk_size]
-        proportion_correct = np.sum(chunk) / len(chunk) * 100
-        aggregated_data.append(proportion_correct)
-    return aggregated_data
-
-
 def plot_distributions(
     users,
-    posts,
-    supported_posts_quality,
     correct_votes_stats,
     population_sizes,
-    sample_sizes,
-    cumulative_votes_list,
-    stage1_participants_count,
-    stage2_participants_count,
-    stage1_population_sizes,
-    stage2_population_sizes,
-    stage1_split,
-    elo_posting_scale,
 ):
-    plt.figure(figsize=(16, 8))  # Increased width for 2x4 grid
+    plt.figure(figsize=(16, 8))  # 2x2 grid layout
 
     # Subplot 1: Distribution of Users by Goodness Factor
-    plt.subplot(2, 4, 1)
-    plt.hist([user.goodness for user in users], bins=50, edgecolor="black")
+    plt.subplot(2, 2, 1)
+
+    user_goodness = [user.goodness for user in users]
+    if user_goodness:
+        # Define threshold for "good" vs "bad" users
+        # Good users (goodness > 0.65): More likely to vote correctly than randomly
+        # Bad users (goodness ≤ 0.65): Vote randomly or worse
+        threshold = 0.65
+
+        bad_users = [g for g in user_goodness if g <= threshold]
+        good_users = [g for g in user_goodness if g > threshold]
+
+        # Create stacked histogram with different colors
+        plt.hist(
+            [bad_users, good_users],
+            bins=50,
+            edgecolor="black",
+            color=["#ff6b6b", "#51cf66"],  # Red for bad, green for good
+            label=[
+                f"Bad Users (≤ {threshold}): {len(bad_users)} users",
+                f"Good Users (> {threshold}): {len(good_users)} users",
+            ],
+            alpha=0.8,
+            stacked=True,
+        )
+
+        # Add vertical line at threshold
+        plt.axvline(
+            x=threshold,
+            color="black",
+            linestyle="--",
+            alpha=0.7,
+            linewidth=2,
+            label=f"Threshold: {threshold}",
+        )
+
+        plt.legend(fontsize=9, loc="upper right")
+    else:
+        plt.hist(user_goodness, bins=50, edgecolor="black")
+
     plt.xlabel("Goodness Factor")
     plt.ylabel("Number of Users")
-    plt.title("Distribution of Users by Goodness Factor")
+    plt.title("Distribution of Users by Goodness Factor\n(Bad vs Good Users)")
 
-    # Subplot 2: Distribution of Users by Elo Rating
-    plt.subplot(2, 4, 2)
-    plt.hist([user.elo for user in users], bins=50, edgecolor="black", log=True)
+    # Subplot 2: Distribution of Users by Elo Rating with User Groups
+    plt.subplot(2, 2, 2)
+
+    user_elos = [user.elo for user in users]
+    if user_elos:
+        # Sort users by ELO to determine thresholds based on user count percentiles
+        sorted_users = sorted(users, key=lambda u: u.elo)
+        N = len(sorted_users)
+
+        # Define thresholds based on user count percentiles (matching voting system)
+        # Stage 1: bottom 70% of users by count
+        # Stage 2: top 30% of users by count (includes editors)
+        # Editor: top 1% of users by count (subset of Stage 2)
+        stage1_cutoff_index = int(0.70 * N)  # Bottom 70% of users
+        editor_cutoff_index = int(0.99 * N)  # Top 1% of users
+
+        # Get the actual ELO values at these cutoff points
+        stage1_threshold = (
+            sorted_users[stage1_cutoff_index - 1].elo
+            if stage1_cutoff_index > 0
+            else sorted_users[0].elo
+        )
+        editor_threshold = (
+            sorted_users[editor_cutoff_index - 1].elo
+            if editor_cutoff_index > 0
+            else sorted_users[0].elo
+        )
+
+        # Separate users into groups based on user count percentiles
+        stage1_elos = [user.elo for user in sorted_users[:stage1_cutoff_index]]
+        stage2_non_editor_elos = [
+            user.elo for user in sorted_users[stage1_cutoff_index:editor_cutoff_index]
+        ]
+        editor_elos = [user.elo for user in sorted_users[editor_cutoff_index:]]
+
+        # Stage 2 includes both non-editors and editors (top 30% total)
+        stage2_elos = stage2_non_editor_elos + editor_elos
+
+        # Create histogram with 50 bins
+        bins = 50
+
+        # Plot stacked histogram with different colors for each group
+        # Stage 2 includes both regular voters and editors visually
+        plt.hist(
+            [stage1_elos, stage2_non_editor_elos, editor_elos],
+            bins=bins,
+            edgecolor="black",
+            log=True,
+            color=["#ff9999", "#99ccff", "#51cf66"],  # Red, Blue, Green
+            label=[
+                f"Stage 1 Voters (Bottom 70%): {len(stage1_elos)} users",
+                f"Stage 2 Voters (Top 30%): {len(stage2_elos)} users",
+                f"Editors (Top 1%): {len(editor_elos)} users",
+            ],
+            alpha=0.8,
+            stacked=True,
+        )
+
+        # Add vertical line at Stage 1/Stage 2 threshold
+        plt.axvline(
+            x=stage1_threshold,
+            color="blue",
+            linestyle="--",
+            alpha=0.7,
+            linewidth=2,
+            label=f"70th percentile (by user count): {stage1_threshold:.1f}",
+        )
+
+        # Add vertical line at editor threshold (for reference)
+        plt.axvline(
+            x=editor_threshold,
+            color="green",
+            linestyle="--",
+            alpha=0.7,
+            linewidth=2,
+            label=f"99th percentile (by user count): {editor_threshold:.1f}",
+        )
+
+        plt.legend(fontsize=8, loc="upper right")
+    else:
+        plt.hist(user_elos, bins=50, edgecolor="black", log=True)
+
     plt.xlabel("Elo Rating")
-    plt.ylabel("Number of Users")
+    plt.ylabel("Number of Users (log scale)")
     plt.title("Distribution of Users by Elo Rating")
 
     # Subplot 3: Correct Votes Ratio with Linear Regression
-    plt.subplot(2, 4, 3)
+    plt.subplot(2, 2, 3)
     if len(correct_votes_stats) > 10:
         if len(correct_votes_stats) < 50:
             window_size = min(10, len(correct_votes_stats))
@@ -633,285 +641,11 @@ def plot_distributions(
     plt.legend()
 
     # Subplot 4: Population Over Time
-    plt.subplot(2, 4, 4)
+    plt.subplot(2, 2, 4)
     plt.plot(range(len(population_sizes)), population_sizes, label="Population Size")
     plt.xlabel("Stage Index")
     plt.ylabel("Population Size")
     plt.title("Population Over Time")
-
-    # Subplot 5: Sample Size Used Over Time
-    plt.subplot(2, 4, 5)
-
-    # Aggregate sample sizes by taking max values over intervals
-    target_points = 50  # Target number of data points to show
-    if len(sample_sizes) > target_points:
-        # For larger datasets, show max values over intervals
-        interval_size = max(
-            1, len(sample_sizes) // target_points
-        )  # Dynamic interval based on data size
-        aggregated_sample_sizes = []
-        aggregated_indices = []
-
-        for i in range(0, len(sample_sizes), interval_size):
-            chunk = sample_sizes[i : i + interval_size]
-            if chunk:  # Make sure chunk is not empty
-                aggregated_sample_sizes.append(max(chunk))
-                aggregated_indices.append(
-                    i + interval_size // 2
-                )  # Use middle of interval as x-position
-
-        plt.plot(
-            aggregated_indices,
-            aggregated_sample_sizes,
-            "go-",
-            label="Max Sample Size (Intervals)",
-            markersize=4,
-        )
-        plt.xlabel("Stage Index")
-        plt.ylabel("Number of Voters")
-        plt.title(f"Sample Size Used Over Time")
-    else:
-        # For smaller datasets, show all values
-        plt.plot(range(len(sample_sizes)), sample_sizes, color="g", label="Sample Size")
-        plt.xlabel("Stage Index")
-        plt.ylabel("Number of Voters")
-        plt.title("Sample Size Used Over Time")
-
-    plt.legend()
-
-    # Subplot 6: Post Creation Bias by ELO Quartiles
-    plt.subplot(2, 4, 6)
-
-    if posts:
-        # Get ELO data - use creation-time ELO for posts
-        user_elos = [user.elo for user in users]  # Current ELO for users
-        creator_elos_at_creation = [
-            post.creator_elo_at_creation for post in posts
-        ]  # ELO at creation time
-
-        # Calculate quartiles based on ELO VALUE RANGE (not population percentiles)
-        # Split the ELO range into 4 equal intervals
-        min_elo = min(user_elos)
-        max_elo = max(user_elos)
-        elo_range = max_elo - min_elo
-
-        # Create 4 equal ELO intervals
-        q1 = min_elo + elo_range * 0.25
-        q2 = min_elo + elo_range * 0.50
-        q3 = min_elo + elo_range * 0.75
-        # q4 boundary is max_elo
-
-        # Count how many users are in each ELO quartile (can be uneven!)
-        user_counts = [
-            sum(1 for elo in user_elos if elo <= q1),  # Q1: lowest 25% of ELO range
-            sum(1 for elo in user_elos if q1 < elo <= q2),  # Q2: next 25% of ELO range
-            sum(1 for elo in user_elos if q2 < elo <= q3),  # Q3: next 25% of ELO range
-            sum(1 for elo in user_elos if elo > q3),  # Q4: highest 25% of ELO range
-        ]
-
-        # Count posts by population ELO quartiles (using CURRENT creator ELO)
-        # This shows: "Users currently in each quartile created how many posts?"
-        post_counts = [0, 0, 0, 0]
-        for post in posts:
-            creator_current_elo = post.creator.elo  # Current ELO of the creator
-            if creator_current_elo <= q1:
-                post_counts[0] += 1
-            elif creator_current_elo <= q2:
-                post_counts[1] += 1
-            elif creator_current_elo <= q3:
-                post_counts[2] += 1
-            else:
-                post_counts[3] += 1
-
-        # Calculate posts per user in each quartile (approximation)
-        # Note: This is approximate since we're using current user distribution vs creation-time post distribution
-        posts_per_user = [
-            post_counts[i] / user_counts[i] if user_counts[i] > 0 else 0
-            for i in range(4)
-        ]
-
-        # Calculate bias multiplier (compared to Q1 baseline)
-        if posts_per_user[0] > 0:
-            bias_multipliers = [rate / posts_per_user[0] for rate in posts_per_user]
-        else:
-            bias_multipliers = [1, 1, 1, 1]
-
-        # Create bar chart showing posts per user
-        x = np.arange(4)
-        colors = ["#ff9999", "#ffcc99", "#99ccff", "#99ff99"]  # Red to green gradient
-
-        bars = plt.bar(x, posts_per_user, color=colors, alpha=0.8, edgecolor="black")
-
-        plt.xlabel("ELO Range Quartiles")
-        plt.ylabel("Posts per User")
-        plt.title("Posts per User by ELO Range Quartile\n(Shows Throttling Bias)")
-        plt.xticks(
-            x,
-            [
-                f"Q1\n≤{q1:.0f}",
-                f"Q2\n{q1:.0f}-{q2:.0f}",
-                f"Q3\n{q2:.0f}-{q3:.0f}",
-                f"Q4\n>{q3:.0f}",
-            ],
-        )
-
-        # Add value labels on bars showing both rate and multiplier
-        for i, (bar, rate, mult) in enumerate(
-            zip(bars, posts_per_user, bias_multipliers)
-        ):
-            plt.text(
-                bar.get_x() + bar.get_width() / 2.0,
-                bar.get_height() + 0.02,
-                f"{rate:.2f}\n({mult:.1f}x)",
-                ha="center",
-                va="bottom",
-                fontsize=9,
-                bbox=dict(boxstyle="round,pad=0.2", facecolor="white", alpha=0.8),
-            )
-
-        plt.grid(True, alpha=0.3)
-        plt.ylim(0, max(posts_per_user) * 1.3)
-    else:
-        plt.text(
-            0.5,
-            0.5,
-            "No posts available",
-            ha="center",
-            va="center",
-            transform=plt.gca().transAxes,
-        )
-
-    # Subplot 7: Voting Participation Ratio Over Time (by user group)
-    plt.subplot(2, 4, 7)
-
-    # Use a moving window to smooth the data
-    window_size = min(50, len(cumulative_votes_list))
-    if window_size > 0:
-        # Process with a moving average
-        stage1_ratio = []
-        stage2_ratio = []
-
-        for i in range(len(cumulative_votes_list) - window_size + 1):
-            # Average group sizes over the window
-            window_stage1_pop = (
-                sum(stage1_population_sizes[i : i + window_size]) / window_size
-            )
-            window_stage2_pop = (
-                sum(stage2_population_sizes[i : i + window_size]) / window_size
-            )
-
-            # Sum of participants in this window
-            window_stage1_votes = sum(stage1_participants_count[i : i + window_size])
-            window_stage2_votes = sum(stage2_participants_count[i : i + window_size])
-
-            # Calculate the vote frequency: votes per user in each group
-            # This accounts for population growth by normalizing by the population size
-            if window_stage1_pop > 0:
-                stage1_ratio.append(
-                    (window_stage1_votes / window_stage1_pop) * 100 / window_size
-                )
-            else:
-                stage1_ratio.append(0)
-
-            if window_stage2_pop > 0:
-                stage2_ratio.append(
-                    (window_stage2_votes / window_stage2_pop) * 100 / window_size
-                )
-            else:
-                stage2_ratio.append(0)
-
-        # Plot the ratios
-        x_range = range(len(stage1_ratio))
-        stage2_split = 100 - stage1_split
-        plt.plot(
-            x_range, stage1_ratio, "b-", label=f"Stage 1 Users (Bottom {stage1_split}%)"
-        )
-        plt.plot(
-            x_range, stage2_ratio, "r-", label=f"Stage 2 Users (Top {stage2_split}%)"
-        )
-
-    plt.xlabel("Stage Index")
-    plt.ylabel("Vote Frequency (% of users voting per round)")
-    plt.title("Voting Frequency by User Group")
-    plt.legend()
-
-    # Subplot 8: ELO Throttling Function
-    plt.subplot(2, 4, 8)
-
-    if users:
-        # Get ELO range from actual users
-        user_elos = [user.elo for user in users]
-        min_elo = min(user_elos)
-        max_elo = max(user_elos)
-
-        # Create a smooth ELO range for plotting the curve
-        elo_range = np.linspace(min_elo - 50, max_elo + 50, 200)
-
-        # Calculate the throttling weights using the same logic as select_posting_users
-        mid_elo = (min_elo + max_elo) / 2
-        weights = []
-        for elo in elo_range:
-            # Normalize ELO to be centered around 0 relative to the midpoint
-            normalized_elo = (elo - mid_elo) / elo_posting_scale
-
-            # Apply sigmoid function: 1 / (1 + e^(-x))
-            sigmoid_weight = 1 / (1 + math.exp(-normalized_elo * 10))
-
-            # Use sigmoid weight directly
-            weight = sigmoid_weight
-            weights.append(weight)
-
-        # Normalize to show relative probability (0-1 scale)
-        max_weight = max(weights)
-        normalized_weights = [w / max_weight for w in weights]
-
-        # Plot the sigmoid curve
-        plt.plot(
-            elo_range,
-            normalized_weights,
-            "b-",
-            linewidth=3,
-            label=f"Scale={elo_posting_scale}",
-        )
-
-        # Add vertical lines showing ELO range quartiles (not population percentiles)
-        elo_range_span = max_elo - min_elo
-        q1 = min_elo + elo_range_span * 0.25
-        q2 = min_elo + elo_range_span * 0.50
-        q3 = min_elo + elo_range_span * 0.75
-
-        elo_quartiles = [q1, q2, q3]
-        colors = ["red", "orange", "green"]
-        labels = ["Q1 (25%)", "Q2 (50%)", "Q3 (75%)"]
-
-        for i, (q, color, label) in enumerate(zip(elo_quartiles, colors, labels)):
-            # Find the corresponding weight for this quartile ELO using the sigmoid function
-            normalized_q = (q - mid_elo) / elo_posting_scale
-            sigmoid_q_weight = 1 / (1 + math.exp(-normalized_q * 10))
-            q_weight = sigmoid_q_weight / max_weight
-
-            plt.axvline(
-                x=q, color=color, linestyle="--", alpha=0.7, label=f"{label}: {q:.0f}"
-            )
-            # Add a point showing the weight at this ELO
-            plt.plot(q, q_weight, "o", color=color, markersize=8, alpha=0.8)
-
-        plt.xlabel("User ELO Rating")
-        plt.ylabel("Relative Posting Probability")
-        plt.title("ELO-Based Posting Throttling")
-        plt.grid(True, alpha=0.3)
-        plt.legend(fontsize=8, loc="center right")
-        plt.xlim(min_elo - 30, max_elo + 30)
-        plt.ylim(0, 1.1)
-    else:
-        plt.text(
-            0.5,
-            0.5,
-            "No users available",
-            ha="center",
-            va="center",
-            transform=plt.gca().transAxes,
-        )
 
     plt.tight_layout()
     plt.show()
@@ -933,8 +667,8 @@ def main():
     parser.add_argument(
         "--growth-rate",
         type=float,
-        default=0.10,
-        help="Population growth rate (default: 0.10)",
+        default=0.05,
+        help="Population growth rate (default: 0.05)",
     )
 
     # Voting stage parameters
