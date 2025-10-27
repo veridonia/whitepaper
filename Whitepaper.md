@@ -1,10 +1,10 @@
 ![ ](assets/logo-veridonia.svg)
 
-# A Whitepaper on Transparent and Scalable Community-Driven Information Curation
+# A Whitepaper on a Scalable Judgment-Based Alternative to Engagement-Based Feeds
 
 ## Abstract
 
-Veridonia is an experiment that introduces a novel approach to online content curation, addressing the limitations of conventional, engagement-driven systems that have fuelled sensationalism, misinformation, and the creation of echo chambers. ([1](https://doi.org/10.1016/j.tics.2021.02.007), [2](https://doi.org/10.1126/science.aao2998), [3](https://doi.org/10.1073/pnas.2023301118)) This whitepaper outlines the challenges posed by today's digital information ecosystem and details the design, architecture, and operational principles of Veridonia. Central to our approach is a framework grounded in five key principles—including transparent governance, merit-based rating, and randomized peer review—that together foster community-driven, trustworthy content curation.
+Veridonia is an experiment that introduces a novel approach to online content curation, addressing the limitations of conventional, engagement-driven systems that have fuelled sensationalism, misinformation, and the creation of echo chambers. ([1](https://doi.org/10.1016/j.tics.2021.02.007), [2](https://doi.org/10.1126/science.aao2998), [3](https://doi.org/10.1073/pnas.2023301118)) This whitepaper outlines the challenges posed by today's digital information ecosystem and details the design, architecture, and operational principles of Veridonia. Central to our approach is a framework grounded in five key principles—including randomised user selection, multi-tier voting, and elo-based rating system—that together foster community-driven, trustworthy content curation.
 
 ## 1. Introduction
 
@@ -32,10 +32,10 @@ Veridonia introduces a novel, community-driven approach to online content curati
 Participants evaluating content are randomly selected, ensuring fairness, diversity, and resistance to manipulation.
 
 **2. Consensus (Majority-Based Decision-Making)**  
-Content decisions rely on majority voting at multiple stages, fostering community alignment and collective agreement.
+Content decisions rely on majority voting, fostering community alignment and collective agreement.
 
 **3. ELO-Based Rating System**  
-A dynamic rating system based on ELO ratings rewards accurate decision-making, ensuring meritocracy and thoughtful engagement.
+A dynamic rating system based on ELO rewards sound judgement and consistent alignment with community standards, supporting meritocratic participation and thoughtful engagement.
 
 **4. Multi-Stage Voting Process**  
 A structured, tiered voting mechanism balances efficiency with quality, using progressively qualified groups of community members to evaluate content.
@@ -49,19 +49,13 @@ This combined framework seeks to address flaws in engagement-driven platforms, a
 
 The following components detail the implementation of Veridonia’s five foundational pillars.
 
-### 4.1 User Onboarding and Baseline Attributes
-
-- **IP-Based ELO Inheritance:** To protect the platform from bot attacks and coordinated manipulation, all new users inherit the ELO rating assigned to their IP address. After each voting stage, an IP address is updated to reflect the lowest ELO among its associated users. For example, if users from an IP (e.g., 156.156.156.3) have ELO ratings of 850, 700, and 1500, the IP is assigned an ELO of 700. Any new users registering from this IP will begin with an ELO of 700, capped at a default maximum (e.g., 800) for first-time IPs.
-- **Initial Assignment:** If the IP address has no previous users, a default ELO rating (e.g., 800) is used.
-- **Rating Development:** Users' influence in content curation evolves over time, reflecting the accuracy and consistency of their judgements.
-
-### 4.2 Submission & Review Pipeline
+### 4.1 Submission & Review Pipeline
 
 Veridonia evaluates each post through a single, transparent pipeline that combines sortition (random sampling) and tiered majority voting. Random selection at each stage promotes fairness and diversity; tiering by rating concentrates final authority among proven reviewers without excluding broader participation. The mechanism scales with community size: as the population grows, random selection becomes harder to game; in very small communities the system collapses to a simpler single-stage vote.
 
 **Process Flow**
 
-1. **Submit** — The author submits a post to a specific community; the system records a permanent, auditable trail.
+1. **Submit** — The author submits a post to a specific community.
 
 2. **Stage 1 — Initial Filter (lower 70% ELO)** — A random sample from the lower 70% of ELO within that community reviews the post for quality and community alignment.  
    **Outcome:**
@@ -79,31 +73,30 @@ Veridonia evaluates each post through a single, transparent pipeline that combin
 **Rationale and Manipulation Resistance**
 
 - **Sortition:** Random selection reduces the viability of targeted manipulation and collusion.
-- **Tiering by rating:** Final decisions are made by consistently accurate reviewers while keeping early checks broad to reflect community diversity.
-- **Scalability:** Larger communities increase the entropy of selection, making coordinated capture more difficult; niche communities remain viable due to focused interests.
+- **Tiering by rating:** Final decisions are made by users who have repeatedly demonstrated sound judgement and alignment with the community’s standards, while keeping early checks broad to reflect community diversity and support scalability.
+- **Scalability:** Larger communities increase the entropy of selection, making coordinated capture more difficult.
 - **Transparency:** All votes, outcomes, and subsequent rating changes are publicly logged for auditability.
 
-### 4.3 ELO-Based Rating System
+### 4.2 ELO-Based Rating System
 
 As one of Veridonia's five foundational pillars, the ELO-based rating system plays a key role in supporting its meritocratic model:
 
-- **Dynamic Influence:** Users' ELO ratings not only reflect their decision-making accuracy but also serve as a gateway to enhanced moderation privileges. As users consistently align with community standards and see their ratings increase, they become eligible for promotion from the initial tier to higher groups—Stage 2 group. These promotions grant them greater influence over content curation and the overall quality of the platform.
-- **Zero-Sum, Team-Weighted ELO Updates:** After the final decision, voters split into two teams: **winners** (their vote matches the outcome) and **losers** (their vote does not). Rating is reallocated strictly zero-sum between these teams and weighted by their relative strength:
+- **Dynamic Influence:** Users’ ELO ratings capture the quality of their judgement and their consistent alignment with community standards. As ratings improve, users become eligible for expanded responsibilities—such as selection into the Stage‑2 decision group and, where applicable, appointment as editors. These roles carry more decision weight and practical responsibility in the curation pipeline, are fully auditable, and are retained only while performance remains strong.
+- **Zero-Sum, Team-Weighted ELO Updates:** After the final decision, voters split into two teams: **winners** (their vote matches the outcome) and **losers** (their vote does not). Rating is reallocated zero-sum between these teams and weighted by their relative strength:
 
   1. Compute each team’s average ELO (winners_avg, losers_avg).
   2. For each participant, compute an update scaled by a constant **K** and the gap between team averages. Members of the **winners** gain ELO, moving upward toward the opposing team’s average; members of the **losers** lose ELO, moving downward toward the opposing team’s average.
   3. The sum of all gains equals the sum of all losses (zero-sum conservation).
+  4. This team-weighted update reinforces good collective judgement, amplifying the influence of participants who align consistently with community standards and reducing that of those who do not.
 
-  4. This team-weighted update rewards collective accuracy and gradually concentrates influence in consistently correct voters whilst penalising systematic misjudgement.
-
-**Example — One Voting Stage**
+**Example: One Voting Stage**
 
 Suppose five users have been selected to vote on whether a suggested post A should be published to a community X.
 
 Their initial ratings are **800, 755, 821, 798,** and **804.**  
 Three vote **Yes** (users 1, 4, 5) and two **No** (2, 3). The majority outcome is **Yes**.
 
-**Step 1 — Compute team averages**
+**Step 1: Compute team averages**
 
 $$
 \mu_W = (800 + 798 + 804) / 3 = 800.67
@@ -113,13 +106,13 @@ $$
 \mu_L = (755 + 821) / 2 = 788.00
 $$
 
-**Step 2 — Expected score for winners**
+**Step 2: Expected score for winners**
 
 $$
 E_W = \frac{1}{1 + 10^{(\mu_L - \mu_W)/400}} = \frac{1}{1 + 10^{(788.00 - 800.67)/400}} \approx 0.518
 $$
 
-**Step 3 — Rating transfer**
+**Step 3: Rating transfer**
 
 $$
 K = 32
@@ -133,7 +126,7 @@ $$
 \text{Total loss for losers} = -15.4
 $$
 
-**Step 4 — Distribution**
+**Step 4: Distribution**
 
 Each winner gains $(+15.4 / 3 = +5.1)$  
 Each loser loses $(-15.4 / 2 = -7.7)$
@@ -141,16 +134,25 @@ Each loser loses $(-15.4 / 2 = -7.7)$
 After this round, the new ratings are approximately:  
 (805, 747, 813, 803, 809)
 
-Although this example describes only one isolated voting stage, the same mechanism repeats continuously across thousands of decisions and participants. Each round transfers small amounts of reputation between more and less accurate voters, and over time these micro-adjustments accumulate into a stable equilibrium. When simulated over many iterations, the system self-organises into a characteristic distribution of ratings—most users cluster around the mean, with smaller groups at the extremes corresponding to the more and less consistent reviewers. The figure below shows this emergent pattern.
+Although this example describes only one isolated voting stage, the same mechanism repeats continuously across many decisions and participants. Each round transfers small amounts of rating between participants whose votes align with the outcome and those that do not, and over time these micro‑adjustments accumulate toward a stable equilibrium. In simulation over extended runs, the system self‑organises into a characteristic distribution of ratings—most users cluster around the mean, with smaller groups at the extremes corresponding to more and less consistently well‑aligned reviewers. The figure below shows this emergent pattern.
 
-![Distribution of Users by ELO Rating. Simulation results showing the equilibrium state produced by repeated voting and rating updates. Most users cluster around the mean, with progressively smaller groups at higher and lower ratings defining the Stage 1, Stage 2, and Editor tiers. Dashed lines mark the 70th and 99th percentiles by user count.](assets/veridonia-users-distribution.png)
+![Distribution of Users by ELO Rating. Simulation results showing the equilibrium state produced by repeated voting and rating updates. Most users cluster around the mean, with progressively smaller groups at higher and lower ratings corresponding to the initial and advanced decision groups. Dashed lines mark the 70th and 99th percentiles by user count.](assets/veridonia-users-distribution.png)
 
 **Local Rating & Elected Cross-Community Stewards (TBD)**  
 Rating (ELO) remains **strictly local to each community**. A user's standing in one community neither boosts nor suppresses their standing in another, and **no global ELO** is ever computed. This prevents the rise of "universal elites" and keeps influence contextual to demonstrated expertise.
 
 In the future, Veridonia may introduce a small set of elected cross-community stewards ("chief editors") with limited administrative powers (e.g., emergency takedowns, cross-community maintenance). Details of their election, scope, and accountability are **to be determined** and may draw inspiration from Wikipedia's steward model. Crucially, these roles would not mix or merge community ratings, and routine content decisions would remain governed locally.
 
-### 4.4 ELO-Based Throttling Mechanism
+The ELO rating system also encompasses onboarding and participation controls, detailed below:
+
+#### 4.2.1 User Onboarding and Baseline Attributes
+
+- **Initial Assignment:** If the IP address has no previous users, a default ELO rating (e.g., 800) is used.
+- **IP-Based ELO Inheritance:** To protect the platform from bot attacks and coordinated manipulation, all new users inherit the ELO rating assigned to their IP address. After each voting stage, an IP address is updated to reflect the lowest ELO among its associated users. For example, if users from an IP (e.g., 156.156.156.3) have ELO ratings of 850, 700, and 1500, the IP is assigned an ELO of 700. Any new users registering from this IP will begin with an ELO of 700, capped at a default maximum (e.g., 800) for first-time IPs.
+
+While this IP-based inheritance mechanism mitigates certain manipulation risks, it has clear limitations. Shared or dynamic IP addresses may produce unintended effects—including the penalisation of legitimate users employing privacy-preserving tools (e.g., Tor or VPNs). This mechanism is not foundational to Veridonia’s core philosophy; rather, it functions as an initial, pragmatic safeguard and is expected to evolve as the platform matures. Potential improvements under consideration include community-reviewed verification requests, whereby users could appeal or validate their onboarding status through review by top-rated participants (e.g., the top 30% or designated editors). The precise procedures and governance structures for such processes remain to be determined and will be shaped by community input and further research.
+
+#### 4.2.2 ELO-Based Throttling Mechanism
 
 Veridonia implements a sophisticated throttling system that regulates users' ability to post and comment based on their ELO ratings:
 
@@ -172,8 +174,8 @@ This mechanism reinforces Veridonia's core principle that influence within the c
 
 Veridonia is designed to be an open and self-regulating ecosystem:
 
-- **Public Auditability:** All voting records, ELO adjustments, and moderation actions are logged and accessible for independent review, emulating blockchain-like transparency. These community standards are shaped through historical voting patterns and collective moderation, and they evolve over time.
-- **Decentralised Moderation:** Governance is vested in the community, with every member (including guests) empowered to contribute, vote, and shape content standards. Moderation rights are held by approximately the top 1% of users in a community by rating, who are able to soft-delete posts to uphold standards. Every moderation action is publicly logged, ensuring accountability, and any such action can be appealed by the broader community through a randomized jury voting process.
+- **Public Auditability:** All voting records, ELO adjustments, and moderation actions are logged and accessible for independent review, emulating blockchain-like transparency.
+- **Decentralised Moderation:** Governance is vested in the community, with every member empowered to contribute, vote, and shape content standards. Moderation rights are held by approximately the top 1% of users in a community by rating, who are able to soft-delete posts to uphold standards. Every moderation action can be appealed by the broader community through a randomized jury voting process.
 
 **Privacy by Design and Data Control:**  
 Veridonia does not require sign-up to participate and does not track users across the web. The system only uses minimal signals necessary for fairness—for example, new accounts inherit the lowest rating from their IP to discourage bot farms. Beyond this, rating is tied entirely to actions within the platform: voting, posting, and how those decisions align with the community.
@@ -184,13 +186,11 @@ At the same time, users retain full control of their data. All activity historie
 
 - **Independence from Advertiser Influence:** Veridonia is free from advertiser funding, ensuring that content curation remains unbiased and dictated solely by community standards. The platform will never employ advertising as a monetisation strategy. Instead, future revenue models may involve subscriptions or donations, but public benefit content—such as community feeds—will always remain free to access. Only private benefit features may be offered as paid options, balancing sustainability with Veridonia’s commitment to open access and public good.
 
-- **User Empowerment:** The platform is structured to empower users, granting them direct oversight of the content curation process without the interference of centralised authorities.
-
 ## 7. Conclusion
 
 Veridonia is an experiment in community-driven curation. By pairing sortition and tiered voting with an ELO-based rating, it exchanges engagement optimisation for incentives that make judgement matter: low-quality contributions carry rating and throttling costs, while careful, community-aligned decisions expand a user's influence. The hypothesis is straightforward: if incentives reward diligence and shared standards, the system should produce online feeds that are higher in quality and more trustworthy.
 
-The next step is empirical: pilot deployments, red-team pressure, and measurement. We will track content quality, capture resistance, decision latency vs. accuracy, fairness of IP-based inheritance, and the usability of the audit trail. Some elements (e.g., cross-community stewards) remain open for design.
+The next step is empirical: testing the system under real conditions and deliberate stress. We will evaluate content quality, capture resistance, decision latency versus judgement alignment, and the fairness of IP-based inheritance to refine both the model and its parameters.
 
 A second question is sustainability. We will evaluate whether a non-advertising model—driven by voluntary support or subscriptions—can fund operations without distorting incentives, while keeping core public-benefit features open.
 
