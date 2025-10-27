@@ -55,20 +55,20 @@ Veridonia evaluates each post through a single, transparent pipeline that combin
 
 **Process Flow**
 
-1. **Submit** — The author submits a post to a specific community.
+1. **Submit**: The author submits a post to a specific community.
 
-2. **Stage 1 — Initial Filter (lower 70% ELO)** — A random sample from the lower 70% of ELO within that community reviews the post for quality and community alignment.  
+2. **Stage 1: Initial Filter (lower 70% ELO)**: A random sample from the lower 70% of ELO within that community reviews the post for quality and community alignment.  
    **Outcome:**
 
    - If a simple majority approves, the post advances to Stage 2.
    - If a simple majority rejects, the post is rejected.  
      **Rating:** After this decision, rating adjustments are applied to Stage-1 participants independently of Stage-2 outcomes.
 
-3. **Stage 2 — Final Decision (top 30% ELO)** — A random sample drawn from the top 30% of ELO issues the final decision by simple majority.  
+3. **Stage 2: Final Decision (top 30% ELO)**: A random sample drawn from the top 30% of ELO issues the final decision by simple majority.  
    **Outcome:** The post is either **published** or **not published** based on the majority vote.  
    **Rating:** Rating adjustments are applied to Stage-2 participants after the final decision.
 
-4. **Small-Population Mode** — For communities with fewer than 20 members, a single random sample is drawn from all available users. A simple majority decides whether to publish. Rating adjustments are applied to those participants.
+4. **Small-Population Mode**: For communities with fewer than 20 members, a single random sample is drawn from all available users. A simple majority decides whether to publish. Rating adjustments are applied to those participants.
 
 **Rationale and Manipulation Resistance**
 
