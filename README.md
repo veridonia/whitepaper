@@ -1,14 +1,14 @@
 ![Veridonia Logo](assets/logo-veridonia.svg)
 
-**Transparent and Scalable Community-Driven Information Curation**
+**A Community-Guided, Signal-Focused Alternative to Engagement-Based Feeds**
 
 ---
 
 ## What is Veridonia?
 
-Veridonia is an experiment in content curation that replaces engagement metrics with community-driven multi-stage voting. Instead of optimizing for clicks and shares, it uses randomized selection and an ELO rating system where influence is earned through demonstrated judgment.
+Veridonia is an experiment in redesigning how feeds are shaped. Instead of engagement-based ranking, it lets communities decide what deserves visibility through a transparent review pipeline. Content is evaluated in randomly sampled, multi-stage votes; majority outcomes decide whether a post advances, and an ELO-based rating system adjusts each participant’s influence based on how reliably their past decisions align with community outcomes.
 
-The system rests on five principles: sortition (random selection), consensus (majority voting), ELO-based rating, multi-stage review, and full transparency of all votes and rating changes.
+The core aim is to systematically route scarce attention toward high-signal contributions and away from low-value noise. The design rests on five pillars drawn from the whitepaper: sortition (random selection), consensus (majority voting), ELO-based rating, multi-stage review, and full transparency and auditability of votes, rating changes, and moderation actions, complemented by ELO-based throttling of low-rated accounts.
 
 ---
 
@@ -18,13 +18,13 @@ For the complete design, read the whitepaper included in this repository:
 
 **→ [Veridonia Whitepaper](Whitepaper.pdf)**
 
-The whitepaper covers the problem analysis, system architecture, voting mechanisms, ELO calculations, IP-based inheritance, throttling, moderation, and the empirical questions we'd need to answer in real deployment.
+The whitepaper describes the problems with engagement-driven feeds, the system architecture, voting and rating mechanisms (including team-weighted ELO updates, IP-based inheritance, throttling, and moderation), and the empirical questions we need to answer in deployment—most importantly, whether Veridonia can measurably improve the signal-to-noise ratio of what surfaces in community feeds.
 
 ---
 
 ## The Simulation
 
-This repository contains a Python implementation of Veridonia's core mechanics. It's simplified—no IP inheritance, no communities, no real user behavior—but it captures the essential question: does multi-stage voting with ELO-based selection improve content quality over time?
+This repository contains a Python implementation of Veridonia's core mechanics. It's simplified—no IP inheritance, no communities, no real user behavior—but it captures the essential question from the whitepaper: does multi-stage voting with ELO-based selection and throttling shift attention toward high-signal posts and suppress noise over time?
 
 ### Installation
 
@@ -68,7 +68,7 @@ The simulation produces four plots.
 
 **Distribution of User Goodness**
 
-Shows the distribution of innate ability to judge content quality. Users above 0.5 tend to vote correctly; users below 0.5 don't. In a well-functioning system, users above 0.5 users should accumulate higher ELO over time.
+Shows the distribution of innate ability to judge content quality. Users above 0.5 tend to vote correctly; users below 0.5 don't. In a well-functioning system, higher-skill users should accumulate higher ELO over time and take on a larger share of high-impact decisions, raising the effective signal-to-noise ratio of collective judgments.
 
 **Distribution of Users by ELO Rating**
 
@@ -76,7 +76,7 @@ Shows how ELO spreads across the population and where the voting tiers fall. Sta
 
 **Correct Votes Ratio Over Time**
 
-Tracks what fraction of voters aligned with actual content quality at each iteration. The regression line shows the trend. An upward slope means the system is getting better at selecting accurate voters.
+Tracks what fraction of voters aligned with actual content quality at each iteration. The regression line shows the trend; a sustained upward slope indicates that the system is getting better at routing decisions through reliable reviewers and is reducing noise relative to signal in the decision pipeline.
 
 **Population Growth Over Time**
 

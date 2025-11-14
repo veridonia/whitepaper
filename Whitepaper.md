@@ -1,49 +1,49 @@
 ![ ](assets/logo-veridonia.svg)
 
-# A Whitepaper on a Scalable Judgment-Based Alternative to Engagement-Based Feeds
+# A Whitepaper on a Community-Guided, Signal-Focused Alternative to Engagement-Based Feeds
 
 ## Abstract
 
-Veridonia is an experiment that introduces a novel approach to online content curation, addressing the limitations of conventional, engagement-driven systems that have fuelled sensationalism, misinformation, and the creation of echo chambers. ([1](https://doi.org/10.1016/j.tics.2021.02.007), [2](https://doi.org/10.1126/science.aao2998), [3](https://doi.org/10.1073/pnas.2023301118)) This whitepaper outlines the challenges posed by today's digital information ecosystem and details the design, architecture, and operational principles of Veridonia. Central to our approach is a framework grounded in five key principles—including randomised user selection, multi-tier voting, and elo-based rating system—that together foster community-driven, trustworthy content curation.
+Veridonia is an experiment in redesigning how online feeds are shaped. Rather than amplifying whatever drives clicks, it introduces a governance layer that lets communities decide what deserves visibility rather than relying on engagement-driven ranking, with the goal of improving the signal‑to‑noise ratio of what appears in feeds. The system is designed to structure participation so that communities can surface material they find valuable through transparent procedures, randomised review, and accountable decision-making. The approach combines sortition, multi-tier voting, and a rating system that reflects how reliably a participant’s judgement aligns with the evolving standards of the group. Together, these elements form a curation framework that differs fundamentally from engagement optimisation and offers a testable alternative for building healthier information spaces.
 
 ## 1. Introduction
 
 The digital landscape today is dominated by engagement metrics such as views, likes, and shares, which serve as the primary indicators of content performance. This focus on the attention economy has led to the widespread prioritisation of sensationalist content over substantive information, contributing to the rapid spread of misinformation, the formation of ideological echo chambers, and a general decline in content quality. ([1](https://doi.org/10.1016/j.tics.2021.02.007), [2](https://doi.org/10.1126/science.aao2998), [3](https://doi.org/10.1073/pnas.2023301118)) Furthermore, opaque algorithms that dictate content visibility and maximise engagement at any cost have amplified mistrust and decreased accountability ([4](https://doi.org/10.1177/1461444816676645)).
 
-The current paradigm of social media platforms is increasingly misaligned with the broader interests of society. Rather than facilitating meaningful information exchange, these systems have evolved into attention-capture mechanisms engineered to maximise screen time. Their algorithms prioritise engagement through psychological manipulation, often at the expense of informative or socially valuable content. As a result, content with the highest emotional appeal—not necessarily the highest quality—achieves the greatest visibility, while important discourse is frequently relegated to the margins.
+The current paradigm of social media platforms is increasingly misaligned with the broader interests of society. Rather than facilitating meaningful information exchange, these systems have evolved into attention-capture mechanisms engineered to maximise screen time. Their algorithms prioritise engagement through psychological manipulation, often at the expense of informative or socially valuable content. As a result, content with the highest emotional appeal—not necessarily the highest quality—achieves the greatest visibility, while important discourse is frequently relegated to the margins. In effect, emotionally charged noise is amplified, while informational signal is suppressed.
 
-Veridonia is conceived as a response to these challenges. By re-engineering the content curation process, Veridonia aims to restore public trust in online content and empower communities to determine quality based on transparent, verifiable standards rather than commercial or algorithmic bias.
+Veridonia is conceived as a response to these challenges. Instead of relying on opaque engagement algorithms, it introduces a structure where communities themselves shape what rises to visibility through open, verifiable procedures. The emphasis is on rebuilding trust in how curation happens – who participates, how decisions are made, and how influence is earned – rather than asserting any particular view of what information is correct.
 
 ## 2. Problem Statement
 
-The prevailing model for information sharing suffers from several critical flaws:
+Most large-scale social platforms optimise feeds for engagement rather than informational value. Ranking functions are tuned to maximise clicks, reactions, and watch time, not to maximise how much reliable, context-rich information a user receives per unit of attention. This has several predictable, systemic consequences:
 
-1. **Sensationalist Content Over Substantive Information:** Content is often designed to attract clicks and emotional responses rather than provide well-researched, balanced perspectives ([2](https://doi.org/10.1126/science.aao2998)).
-2. **Misinformation Propagation:** The race for engagement results in the rapid spread of false or misleading information ([1](https://doi.org/10.1016/j.tics.2021.02.007)).
-3. **Filter Bubbles and Echo Chambers:** Personalised algorithms confine users to ideologically homogenous groups, diminishing exposure to diverse viewpoints ([2](https://doi.org/10.1126/science.aao2998)).
-4. **Opaque Decision-Making:** Hidden algorithmic processes limit transparency and accountability, fostering widespread mistrust ([4](https://doi.org/10.1177/1461444816676645)).
-5. **Negative Societal Impacts:** The relentless pursuit of engagement contributes significantly to mental health issues and decreased productivity ([5](https://doi.org/10.1080/02673843.2019.1590851)).
+1. **Attention is steered toward noise:** Emotionally charged, sensational, or outrage-inducing posts generate more engagement than slower, context-heavy material, and are therefore amplified disproportionally ([1](https://doi.org/10.1016/j.tics.2021.02.007), [2](https://doi.org/10.1126/science.aao2998)).
+2. **Misinformation spreads more easily than verification:** False or misleading content is often cheaper to produce, more surprising, and more shareable than careful corrections, allowing it to propagate faster and further in engagement-driven systems ([1](https://doi.org/10.1016/j.tics.2021.02.007)).
+3. **Filter bubbles and echo chambers emerge by design:** Personalisation concentrates a user’s feed around already-reinforced views, limiting exposure to high-signal disagreement and cross-cutting information while repeatedly resurfacing familiar, emotionally resonant material ([2](https://doi.org/10.1126/science.aao2998), [3](https://doi.org/10.1073/pnas.2023301118)).
+4. **Curation is opaque and unaccountable:** Proprietary ranking algorithms and limited visibility into moderation decisions make it difficult for users, researchers, or policymakers to inspect how visibility is allocated or to contest systemic failures ([4](https://doi.org/10.1177/1461444816676645)).
+5. **There are downstream harms to individuals and society:** Feeds saturated with high-intensity, low-signal content correlate with elevated anxiety, distraction, and reduced well-being, particularly among younger users ([5](https://doi.org/10.1080/02673843.2019.1590851)).
+
+Taken together, these dynamics describe feeds with a chronically low signal-to-noise ratio: scarce human attention is repeatedly captured by vivid but low-information content, while slower, higher-signal contributions struggle to gain visibility. Addressing this requires intervening not just in individual pieces of content, but in the mechanisms that allocate visibility—how posts are selected, who participates in that selection, and how their influence is earned or withdrawn over time.
 
 ## 3. Veridonia's Proposed Solution
 
-Veridonia introduces a novel, community-driven approach to online content curation based on five foundational pillars:
+Veridonia introduces a community-driven approach to structuring visibility in online feeds. Instead of predicting what will maximise engagement, it delegates curation to a sequence of transparent and well-defined steps that organise how participants review content. It does not presume that individual reviewers are free of bias; partiality and local perspective are treated as unavoidable features of human judgement. The design focus is therefore on how those judgements are sampled, combined, and rewarded. Engagement-optimised systems tend to align incentives with rapid, affective responses, reinforcing existing distortions in attention. Veridonia, by contrast, is intended to make influence contingent on consistent, accountable participation in procedures that, over time, favour contributions with higher informational signal relative to noise. Five principles underpin this design:
 
 **1. Sortition (Randomized Participant Selection)**  
-Participants evaluating content are randomly selected, ensuring fairness, diversity, and resistance to manipulation.
+Random sampling broadens representation and limits coordinated control, ensuring that no fixed group consistently decides outcomes.
 
 **2. Consensus (Majority-Based Decision-Making)**  
-Content decisions rely on majority voting, fostering community alignment and collective agreement.
+Simple majority outcomes determine whether a piece of content advances, anchoring decisions in shared community standards rather than algorithmic prediction.
 
 **3. ELO-Based Rating System**  
-A dynamic rating system based on ELO rewards sound judgement and consistent alignment with community standards, supporting meritocratic participation and thoughtful engagement.
+A dynamic rating captures how reliably a participant’s past decisions aligned with the outcomes produced by their community, and uses that track record to assign additional responsibility.
 
 **4. Multi-Stage Voting Process**  
-A structured, tiered voting mechanism balances efficiency with quality, using progressively qualified groups of community members to evaluate content.
+Tiered voting introduces structure and scalability: early checks reflect broad community diversity, while later stages rely on reviewers who have repeatedly demonstrated steady judgement within that community context.
 
 **5. Transparency and Auditability**  
-All moderation actions, votes, and rating adjustments are publicly recorded, ensuring full transparency and enabling independent verification. This openness safeguards the integrity of the community governance model.
-
-This combined framework seeks to address flaws in engagement-driven platforms, aiming to restore trust and prioritize content integrity.
+Every moderation action, vote tally, and rating adjustment is publicly visible. This shifts trust away from assumptions about correctness and toward verifiable process.
 
 ## 4. System Architecture
 
@@ -57,7 +57,7 @@ Veridonia evaluates each post through a single, transparent pipeline that combin
 
 1. **Submit**: The author submits a post to a specific community.
 
-2. **Stage 1: Initial Filter (lower 70% ELO)**: A random sample from the lower 70% of ELO within that community reviews the post for quality and community alignment.  
+2. **Stage 1: Initial Filter (lower 70% ELO)**: A random sample from the lower 70% of ELO within that community reviews the post for relevance, informational value, and community alignment.  
    **Outcome:**
 
    - If a simple majority approves, the post advances to Stage 2.
@@ -65,7 +65,7 @@ Veridonia evaluates each post through a single, transparent pipeline that combin
      **Rating:** After this decision, rating adjustments are applied to Stage-1 participants independently of Stage-2 outcomes.
 
 3. **Stage 2: Final Decision (top 30% ELO)**: A random sample drawn from the top 30% of ELO issues the final decision by simple majority.  
-   **Outcome:** The post is either **published** or **not published** based on the majority vote.  
+   **Outcome:** The post either enters the community feed or does not, depending on the majority decision of the selected reviewers.  
    **Rating:** Rating adjustments are applied to Stage-2 participants after the final decision.
 
 4. **Small-Population Mode**: For communities with fewer than 20 members, a single random sample is drawn from all available users. A simple majority decides whether to publish. Rating adjustments are applied to those participants.
@@ -73,21 +73,22 @@ Veridonia evaluates each post through a single, transparent pipeline that combin
 **Rationale and Manipulation Resistance**
 
 - **Sortition:** Random selection reduces the viability of targeted manipulation and collusion.
-- **Tiering by rating:** Final decisions are made by users who have repeatedly demonstrated sound judgement and alignment with the community’s standards, while keeping early checks broad to reflect community diversity and support scalability.
+- **Tiering by rating:** Final decisions are made by users who have consistently shown good judgement in filtering for relevance and quality within the community’s scope, while keeping early checks broad to reflect community diversity and support scalability.
 - **Scalability:** Larger communities increase the entropy of selection, making coordinated capture more difficult.
 - **Transparency:** All votes, outcomes, and subsequent rating changes are publicly logged for auditability.
+- **Internal Echo Reduction:** Within a single community, the combination of random selection and majority outcomes tends to reward content that can attract support across factions. This pushes curation toward broadly acceptable signals and dampens the formation of narrow internal echo chambers, while still allowing distinct communities to maintain their own standards.
 
 ### 4.2 ELO-Based Rating System
 
-As one of Veridonia's five foundational pillars, the ELO-based rating system plays a key role in supporting its meritocratic model:
+As one of Veridonia's five foundational pillars, the ELO-based rating system reflects how consistently a participant’s prior decisions have matched the outcomes produced by their community. Over time, this identifies contributors who tend to stay in tune with the group’s evolving standards for what deserves visibility. Higher-rated participants are invited into more consequential review stages, not as arbiters of correctness, but as members whose past participation suggests reliability in navigating the community’s expectations:
 
-- **Dynamic Influence:** Users’ ELO ratings capture the quality of their judgement and their consistent alignment with community standards. As ratings improve, users become eligible for expanded responsibilities—such as selection into the Stage‑2 decision group and, where applicable, appointment as editors. These roles carry more decision weight and practical responsibility in the curation pipeline, are fully auditable, and are retained only while performance remains strong.
+- **Dynamic Influence:** Users’ ELO ratings reflect their track record of decisions relative to community outcomes. As these ratings rise, users become eligible for expanded responsibilities—such as participation in Stage‑2 review or, where applicable, appointment as editors. These roles carry more weight in the curation pipeline, are fully auditable, and remain conditional on continued performance.
 - **Zero-Sum, Team-Weighted ELO Updates:** After the final decision, voters split into two teams: **winners** (their vote matches the outcome) and **losers** (their vote does not). Rating is reallocated zero-sum between these teams and weighted by their relative strength:
 
   1. Compute each team’s average ELO (winners_avg, losers_avg).
   2. For each participant, compute an update scaled by a constant **K** and the gap between team averages. Members of the **winners** gain ELO, moving upward toward the opposing team’s average; members of the **losers** lose ELO, moving downward toward the opposing team’s average.
   3. The sum of all gains equals the sum of all losses (zero-sum conservation).
-  4. This team-weighted update reinforces good collective judgement, amplifying the influence of participants who align consistently with community standards and reducing that of those who do not.
+  4. This team-weighted update reinforces effective group-level filtering, amplifying the influence of participants who align consistently with community outcomes and reducing that of those who do not.
 
 **Example: One Voting Stage**
 
@@ -154,7 +155,7 @@ While this IP-based inheritance mechanism mitigates certain manipulation risks, 
 
 #### 4.2.2 ELO-Based Throttling Mechanism
 
-Veridonia implements a sophisticated throttling system that regulates users' ability to post and comment based on their ELO ratings:
+Veridonia implements a throttling system that regulates users' ability to post and comment based on their ELO ratings:
 
 - **Rate Limiting:** Users with lower ELO ratings face greater restrictions on how frequently they can post content or comment. This throttling mechanism scales dynamically with ELO scores, and users with particularly low rating may be limited to posting only once per hour, per day, or even per week, depending on the severity of their low ELO.
 - **Cooldown Periods:** After posting or commenting, users experience a mandatory cooldown period before they can contribute again. The duration of this cooldown is inversely proportional to their ELO rating.
@@ -162,7 +163,7 @@ Veridonia implements a sophisticated throttling system that regulates users' abi
 
 The throttling mechanism serves several critical functions:
 
-1. **Quality Control:** By limiting the volume of content from users with lower rating scores, the system naturally elevates the average quality of visible content.
+1. **Quality Control:** By limiting the volume of content from users with lower rating scores, the system naturally increases the average signal relative to noise in visible content.
 2. **Spam Prevention:** Rate limiting creates an effective barrier against automated spam and coordinated manipulation attempts.
 3. **Incentivizing Quality:** The direct relationship between contribution privileges and ELO motivates users to focus on thoughtful, community-aligned contributions rather than quantity.
 4. **Self-Regulation:** The system creates a natural self-regulatory environment where users who consistently provide low-quality content have diminished impact on the community.
@@ -184,15 +185,15 @@ At the same time, users retain full control of their data. All activity historie
 
 ## 6. Additional Core Principles
 
-**Independence from Advertiser Influence:** Veridonia is free from advertiser funding, ensuring that content curation remains unbiased and dictated solely by community standards. The platform will never employ advertising as a monetisation strategy. Instead, future revenue models may involve subscriptions or donations, but public benefit content—such as community feeds—will always remain free to access. Only private benefit features may be offered as paid options, balancing sustainability with Veridonia’s commitment to open access and public good.
+**Independence from Advertiser Influence:** Veridonia is free from advertiser funding, ensuring that content curation is not driven by advertiser incentives and is dictated solely by community standards. The platform will never employ advertising as a monetisation strategy. Instead, future revenue models may involve subscriptions or donations, but public benefit content—such as community feeds—will always remain free to access. Only private benefit features may be offered as paid options, balancing sustainability with Veridonia’s commitment to open access and public good.
 
 ## 7. Conclusion
 
-Veridonia is an experiment in community-driven curation. By pairing sortition and tiered voting with an ELO-based rating, it exchanges engagement optimisation for incentives that make judgement matter: low-quality contributions carry rating and throttling costs, while careful, community-aligned decisions expand a user's influence. The hypothesis is straightforward: if incentives reward diligence and shared standards, the system should produce online feeds that are higher in quality and more trustworthy.
+Veridonia is an experiment in community-guided curation. By pairing sortition and tiered voting with an ELO-based rating model, it replaces engagement optimisation with incentives that reward careful participation. Contributions that repeatedly fall outside the community’s standards carry rating and throttling costs, while steady, attentive decisions expand a participant’s role in shaping what the community sees. The expectation is that such incentives produce feeds that feel more deliberate, legible, and aligned with the community’s own preferences, with a healthier balance of signal over noise than engagement-driven alternatives.
 
-The next step is empirical: testing the system under real conditions and deliberate stress. We will evaluate content quality, capture resistance, decision latency versus judgement alignment, and the fairness of IP-based inheritance to refine both the model and its parameters.
+The next step is empirical: testing the system under real conditions and deliberate stress. We will evaluate how feeds distribute attention between substantive contributions and noise, as well as overall content quality and capture resistance. We will also examine decision latency versus judgement alignment and the fairness of IP-based inheritance to refine both the model and its parameters.
 
-A second question is sustainability. We will evaluate whether a non-advertising model—driven by voluntary support or subscriptions—can fund operations without distorting incentives, while keeping core public-benefit features open.
+A second question is sustainability. We will evaluate whether a non-advertising model – driven by voluntary support or subscriptions – can fund operations without distorting incentives, while keeping core public-benefit features open.
 
 Ultimately, Veridonia is a falsifiable proposal. If outcomes under real use do not beat practical baselines—or if funding compromises the aims—it should be revised or retired. If they do, the system may be worth iterating on. We invite researchers and communities to test, critique, and adapt these ideas.
 
