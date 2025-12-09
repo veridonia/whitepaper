@@ -1,6 +1,6 @@
 ![ ](assets/logo-veridonia.svg)
 
-# Veridonia: A Trustworthy Online Feed.
+# Veridonia: A More Trustworthy Online Feed.
 
 _Hlib Semeniuk_
 

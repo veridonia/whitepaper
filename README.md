@@ -1,6 +1,6 @@
 ![Veridonia Logo](assets/logo-veridonia.svg)
 
-**A Trustworthy Online Feed**
+**A More Trustworthy Online Feed**
 
 ---
 
