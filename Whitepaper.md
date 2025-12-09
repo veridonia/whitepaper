@@ -1,10 +1,12 @@
 ![ ](assets/logo-veridonia.svg)
 
-# A Whitepaper on a Community-Guided, Signal-Focused Alternative to Engagement-Based Feeds
+# Veridonia: A Trustworthy Online Feed.
+
+_Hlib Semeniuk_
 
 ## Abstract
 
-Veridonia is an experiment in redesigning how online feeds are shaped. Rather than amplifying whatever drives clicks, it introduces a governance layer that lets communities decide what deserves visibility rather than relying on engagement-driven ranking, with the goal of improving the signal‑to‑noise ratio of what appears in feeds. The system is designed to structure participation so that communities can surface material they find valuable through transparent procedures, randomised review, and accountable decision-making. The approach combines sortition, multi-tier voting, and a rating system that reflects how reliably a participant’s judgement aligns with the evolving standards of the group. Together, these elements form a curation framework that differs fundamentally from engagement optimisation and offers a testable alternative for building healthier information spaces.
+Veridonia is an experiment in building an online feed platform that redesigns how feeds are shaped. Rather than amplifying whatever drives clicks, it introduces a governance layer that lets communities decide what deserves visibility in the feed rather than relying on engagement-driven ranking, with the goal of improving the signal‑to‑noise ratio of what appears there. The system is designed to structure participation so that communities can surface material they find valuable through transparent procedures, randomised review, and accountable decision-making. The approach combines sortition, multi-tier voting, and a rating system that reflects how reliably a participant’s judgement aligns with the evolving standards of the group. Together, these elements form a curation framework that differs fundamentally from engagement optimisation and offers a testable alternative for building healthier information spaces.
 
 ## 1. Introduction
 
@@ -12,7 +14,7 @@ The digital landscape today is dominated by engagement metrics such as views, li
 
 The current paradigm of social media platforms is increasingly misaligned with the broader interests of society. Rather than facilitating meaningful information exchange, these systems have evolved into attention-capture mechanisms engineered to maximise screen time. Their algorithms prioritise engagement through psychological manipulation, often at the expense of informative or socially valuable content. As a result, content with the highest emotional appeal—not necessarily the highest quality—achieves the greatest visibility, while important discourse is frequently relegated to the margins. In effect, emotionally charged noise is amplified, while informational signal is suppressed.
 
-Veridonia is conceived as a response to these challenges. Instead of relying on opaque engagement algorithms, it introduces a structure where communities themselves shape what rises to visibility through open, verifiable procedures. The emphasis is on rebuilding trust in how curation happens – who participates, how decisions are made, and how influence is earned – rather than asserting any particular view of what information is correct.
+Veridonia is an online feed conceived as a response to these challenges. Instead of relying on opaque engagement algorithms, it introduces a structure where communities themselves shape what rises to visibility in the feed through open, verifiable procedures. The emphasis is on rebuilding trust in how feed curation happens – who participates, how decisions are made, and how influence is earned – rather than asserting any particular view of what information is correct.
 
 ## 2. Problem Statement
 
@@ -28,7 +30,7 @@ Taken together, these dynamics describe feeds with a chronically low signal-to-n
 
 ## 3. Veridonia's Proposed Solution
 
-Veridonia introduces a community-driven approach to structuring visibility in online feeds. Instead of predicting what will maximise engagement, it delegates curation to a sequence of transparent and well-defined steps that organise how participants review content. It does not presume that individual reviewers are free of bias; partiality and local perspective are treated as unavoidable features of human judgement. The design focus is therefore on how those judgements are sampled, combined, and rewarded. Engagement-optimised systems tend to align incentives with rapid, affective responses, reinforcing existing distortions in attention. Veridonia, by contrast, is intended to make influence contingent on consistent, accountable participation in procedures that, over time, favour contributions with higher informational signal relative to noise. Five principles underpin this design:
+Veridonia introduces a community-driven approach to structuring visibility in its online feed. Instead of predicting what will maximise engagement, it delegates decisions about which posts appear in the feed to a sequence of transparent and well-defined steps that organise how participants review content. It does not presume that individual reviewers are free of bias; partiality and local perspective are treated as unavoidable features of human judgement. The design focus is therefore on how those judgements are sampled, combined, and rewarded. Engagement-optimised systems tend to align incentives with rapid, affective responses, reinforcing existing distortions in attention. Veridonia, by contrast, is intended to make influence contingent on consistent, accountable participation in procedures that, over time, favour contributions with higher informational signal relative to noise. Five principles underpin this design:
 
 **1. Sortition (Randomized Participant Selection)**  
 Random sampling broadens representation and limits coordinated control, ensuring that no fixed group consistently decides outcomes.
@@ -51,7 +53,7 @@ The following components detail the implementation of Veridonia’s five foundat
 
 ### 4.1 Submission & Review Pipeline
 
-Veridonia evaluates each post through a single, transparent pipeline that combines sortition (random sampling) and tiered majority voting. Random selection at each stage promotes fairness and diversity; tiering by rating concentrates final authority among proven reviewers without excluding broader participation. The mechanism scales with community size: as the population grows, random selection becomes harder to game; in very small communities the system collapses to a simpler single-stage vote.
+Veridonia evaluates each post that could appear in a community feed through a single, transparent pipeline that combines sortition (random sampling) and tiered majority voting. Random selection at each stage promotes fairness and diversity; tiering by rating concentrates final authority among proven reviewers without excluding broader participation. The mechanism scales with community size: as the population grows, random selection becomes harder to game; in very small communities the system collapses to a simpler single-stage vote.
 
 **Process Flow**
 
@@ -80,9 +82,9 @@ Veridonia evaluates each post through a single, transparent pipeline that combin
 
 ### 4.2 ELO-Based Rating System
 
-As one of Veridonia's five foundational pillars, the ELO-based rating system reflects how consistently a participant’s prior decisions have matched the outcomes produced by their community. Over time, this identifies contributors who tend to stay in tune with the group’s evolving standards for what deserves visibility. Higher-rated participants are invited into more consequential review stages, not as arbiters of correctness, but as members whose past participation suggests reliability in navigating the community’s expectations:
+As one of Veridonia's five foundational pillars, the ELO-based rating system reflects how consistently a participant’s prior decisions have matched the outcomes produced by their community. Over time, this identifies contributors who tend to stay in tune with the group’s evolving standards for what deserves visibility in the feed. Higher-rated participants are invited into more consequential review stages, not as arbiters of correctness, but as members whose past participation suggests reliability in navigating the community’s expectations:
 
-- **Dynamic Influence:** Users’ ELO ratings reflect their track record of decisions relative to community outcomes. As these ratings rise, users become eligible for expanded responsibilities—such as participation in Stage‑2 review or, where applicable, appointment as editors. These roles carry more weight in the curation pipeline, are fully auditable, and remain conditional on continued performance.
+- **Dynamic Influence:** Users’ ELO ratings reflect their track record of decisions relative to community outcomes. As these ratings rise, users become eligible for expanded responsibilities—such as participation in Stage‑2 review or, where applicable, appointment as editors. These roles carry more weight in the curation pipeline that governs what appears in the community feed, are fully auditable, and remain conditional on continued performance.
 - **Zero-Sum, Team-Weighted ELO Updates:** After the final decision, voters split into two teams: **winners** (their vote matches the outcome) and **losers** (their vote does not). Rating is reallocated zero-sum between these teams and weighted by their relative strength:
 
   1. Compute each team’s average ELO (winners_avg, losers_avg).
@@ -175,8 +177,8 @@ This mechanism reinforces Veridonia's core principle that influence within the c
 
 Veridonia is designed to be an open and self-regulating ecosystem:
 
-- **Public Auditability:** All voting records, ELO adjustments, and moderation actions are logged and accessible for independent review, emulating blockchain-like transparency.
-- **Decentralised Moderation:** Governance is vested in the community, with every member empowered to contribute, vote, and shape content standards. Moderation rights are held by approximately the top 1% of users in a community by rating, who are able to soft-delete posts to uphold standards. Every moderation action can be appealed by the broader community through a randomized jury voting process.
+- **Public Auditability:** All voting records, ELO adjustments, and moderation actions affecting what appears in the feed are logged and accessible for independent review, emulating blockchain-like transparency.
+- **Decentralised Moderation:** Governance is vested in the community, with every member empowered to contribute, vote, and shape content standards for their feeds. Moderation rights are held by approximately the top 1% of users in a community by rating, who are able to soft-delete posts from the feed to uphold standards. Every moderation action can be appealed by the broader community through a randomized jury voting process.
 
 **Privacy by Design and Data Control:**  
 Veridonia does not require sign-up to participate and does not track users across the web. The system only uses minimal signals necessary for fairness—for example, new accounts inherit the lowest rating from their IP to discourage bot farms. Beyond this, rating is tied entirely to actions within the platform: voting, posting, and how those decisions align with the community.
@@ -185,11 +187,11 @@ At the same time, users retain full control of their data. All activity historie
 
 ## 6. Additional Core Principles
 
-**Independence from Advertiser Influence:** Veridonia is free from advertiser funding, ensuring that content curation is not driven by advertiser incentives and is dictated solely by community standards. The platform will never employ advertising as a monetisation strategy. Instead, future revenue models may involve subscriptions or donations, but public benefit content—such as community feeds—will always remain free to access. Only private benefit features may be offered as paid options, balancing sustainability with Veridonia’s commitment to open access and public good.
+**Independence from Advertiser Influence:** Veridonia is free from advertiser funding, ensuring that feed curation is not driven by advertiser incentives and is dictated solely by community standards. The platform will never employ advertising as a monetisation strategy. Instead, future revenue models may involve subscriptions or donations, but public benefit content—such as community feeds—will always remain free to access. Only private benefit features may be offered as paid options, balancing sustainability with Veridonia’s commitment to open access and public good.
 
 ## 7. Conclusion
 
-Veridonia is an experiment in community-guided curation. By pairing sortition and tiered voting with an ELO-based rating model, it replaces engagement optimisation with incentives that reward careful participation. Contributions that repeatedly fall outside the community’s standards carry rating and throttling costs, while steady, attentive decisions expand a participant’s role in shaping what the community sees. The expectation is that such incentives produce feeds that feel more deliberate, legible, and aligned with the community’s own preferences, with a healthier balance of signal over noise than engagement-driven alternatives.
+Veridonia is an experiment in community-guided online feeds. By pairing sortition and tiered voting with an ELO-based rating model, it replaces engagement optimisation with incentives that reward careful participation. Contributions that repeatedly fall outside the community’s standards carry rating and throttling costs, while steady, attentive decisions expand a participant’s role in shaping what the community sees in its feeds. The expectation is that such incentives produce feeds that feel more deliberate, legible, and aligned with the community’s own preferences, with a healthier balance of signal over noise than engagement-driven alternatives.
 
 The next step is empirical: testing the system under real conditions and deliberate stress. We will evaluate how feeds distribute attention between substantive contributions and noise, as well as overall content quality and capture resistance. We will also examine decision latency versus judgement alignment and the fairness of IP-based inheritance to refine both the model and its parameters.
 

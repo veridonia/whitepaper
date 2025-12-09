@@ -1,12 +1,12 @@
 ![Veridonia Logo](assets/logo-veridonia.svg)
 
-**A Community-Guided, Signal-Focused Alternative to Engagement-Based Feeds**
+**A Trustworthy Online Feed**
 
 ---
 
 ## What is Veridonia?
 
-Veridonia is an experiment in redesigning how feeds are shaped. Instead of engagement-based ranking, it lets communities decide what deserves visibility through a transparent review pipeline. Content is evaluated in randomly sampled, multi-stage votes; majority outcomes decide whether a post advances, and an ELO-based rating system adjusts each participant’s influence based on how reliably their past decisions align with community outcomes.
+Veridonia is an online feed that experiments with redesigning how feeds are shaped. Instead of engagement-based ranking, it lets communities decide what deserves visibility through a transparent review pipeline. Content is evaluated in randomly sampled, multi-stage votes; majority outcomes decide whether a post advances, and an ELO-based rating system adjusts each participant’s influence based on how reliably their past decisions align with community outcomes.
 
 The core aim is to systematically route scarce attention toward high-signal contributions and away from low-value noise. The design rests on five pillars drawn from the whitepaper: sortition (random selection), consensus (majority voting), ELO-based rating, multi-stage review, and full transparency and auditability of votes, rating changes, and moderation actions, complemented by ELO-based throttling of low-rated accounts.
 
