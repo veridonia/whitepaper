@@ -30,22 +30,22 @@ Taken together, these dynamics describe feeds with a chronically low signal-to-n
 
 ## 3. Veridonia's Proposed Solution
 
-Veridonia introduces a community-driven approach to structuring visibility in its online feed. Instead of predicting what will maximise engagement, it delegates decisions about which posts appear in the feed to a sequence of transparent and well-defined steps that organise how participants review content. It does not presume that individual reviewers are free of bias; partiality and local perspective are treated as unavoidable features of human judgement. The design focus is therefore on how those judgements are sampled, combined, and rewarded. Engagement-optimised systems tend to align incentives with rapid, affective responses, reinforcing existing distortions in attention. Veridonia, by contrast, is intended to make influence contingent on consistent, accountable participation in procedures that, over time, favour contributions with higher informational signal relative to noise. Five principles underpin this design:
+Veridonia introduces a community-driven approach to structuring visibility in its online feed. Instead of predicting what will maximise engagement, it delegates decisions about which posts appear in the feed to a sequence of transparent and well-defined steps that organise how participants review content. It does not presume that individual reviewers are free of bias; partiality and local perspective are treated as unavoidable features of human judgement. The design focus is therefore on how those judgements are sampled, combined, and rewarded. Engagement-optimised systems tend to align incentives with rapid, affective responses, reinforcing existing distortions in attention. Veridonia, by contrast, is intended to make influence contingent on consistent, accountable participation in procedures that, over time, favour contributions with higher informational signal relative to noise. The aim is to produce feeds that are representative of the community, that systematically favour higher‑signal material over noise, that are resistant to coordinated capture, fast enough for day‑to‑day use, and procedurally legible to participants. To approximate these properties under online‑feed constraints, Veridonia relies on five foundational pillars:
 
 **1. Sortition (Randomized Participant Selection)**  
-Random sampling broadens representation and limits coordinated control, ensuring that no fixed group consistently decides outcomes.
+Random sampling broadens representation and limits coordinated control, ensuring that no fixed group consistently decides outcomes and that each decision reflects a changing cross‑section of the community.
 
 **2. Consensus (Majority-Based Decision-Making)**  
-Simple majority outcomes determine whether a piece of content advances, anchoring decisions in shared community standards rather than algorithmic prediction.
+Simple majority outcomes determine whether a piece of content advances, anchoring decisions in shared community standards rather than opaque algorithmic prediction.
 
 **3. ELO-Based Rating System**  
-A dynamic rating captures how reliably a participant’s past decisions aligned with the outcomes produced by their community, and uses that track record to assign additional responsibility.
+A dynamic rating captures how reliably a participant’s past decisions have matched community outcomes and turns that history into a notion of reputation. This reputation signal governs who is eligible for which responsibilities across the system—for example, participation in higher‑impact reviews, moderation roles, and looser throttling.
 
-**4. Multi-Stage Voting Process**  
-Tiered voting introduces structure and scalability: early checks reflect broad community diversity, while later stages rely on reviewers who have repeatedly demonstrated steady judgement within that community context.
+**4. Multi-Stage Voting Process for Post Publication**  
+Tiered voting structures how posts move toward publication in community feeds. Early checks expose posts to a broad, low‑cost sample, while later checks use smaller panels drawn from higher‑rated participants to approximate the outcome of a much larger community vote with far fewer total ballots.
 
 **5. Transparency and Auditability**  
-Every moderation action, vote tally, and rating adjustment is publicly visible. This shifts trust away from assumptions about correctness and toward verifiable process.
+Every moderation action, vote tally, and rating adjustment is publicly visible. This shifts trust away from assumptions about correctness and toward verifiable process, and allows communities to inspect how influence is earned and exercised.
 
 ## 4. System Architecture
 
@@ -54,6 +54,8 @@ The following components detail the implementation of Veridonia’s five foundat
 ### 4.1 Submission & Review Pipeline
 
 Veridonia evaluates each post that could appear in a community feed through a single, transparent pipeline that combines sortition (random sampling) and tiered majority voting. Random selection at each stage promotes fairness and diversity; tiering by rating concentrates final authority among proven reviewers without excluding broader participation. The mechanism scales with community size: as the population grows, random selection becomes harder to game; in very small communities the system collapses to a simpler single-stage vote.
+
+The structure of this pipeline is chosen to balance three goals: keep decisions representative of the broader community, minimise the number of people who need to vote on any given post, and keep decision latency compatible with a live feed. The concrete stages below are a minimal arrangement that preserves diversity in early checks while concentrating later effort on a smaller set of participants who have demonstrated reliable judgement.
 
 **Process Flow**
 
@@ -76,21 +78,28 @@ Veridonia evaluates each post that could appear in a community feed through a si
 
 - **Sortition:** Random selection reduces the viability of targeted manipulation and collusion.
 - **Tiering by rating:** Final decisions are made by users who have consistently shown good judgement in filtering for relevance and quality within the community’s scope, while keeping early checks broad to reflect community diversity and support scalability.
+- **Efficiency under feed constraints:** For publication decisions about posts, Veridonia uses a two‑stage pattern (Section 4.3) that approximates the decisions of a large one‑stage community vote while keeping per‑post latency and voter load compatible with a live feed.
 - **Scalability:** Larger communities increase the entropy of selection, making coordinated capture more difficult.
 - **Transparency:** All votes, outcomes, and subsequent rating changes are publicly logged for auditability.
 - **Internal Echo Reduction:** Within a single community, the combination of random selection and majority outcomes tends to reward content that can attract support across factions. This pushes curation toward broadly acceptable signals and dampens the formation of narrow internal echo chambers, while still allowing distinct communities to maintain their own standards.
 
 ### 4.2 ELO-Based Rating System
 
-As one of Veridonia's five foundational pillars, the ELO-based rating system reflects how consistently a participant’s prior decisions have matched the outcomes produced by their community. Over time, this identifies contributors who tend to stay in tune with the group’s evolving standards for what deserves visibility in the feed. Higher-rated participants are invited into more consequential review stages, not as arbiters of correctness, but as members whose past participation suggests reliability in navigating the community’s expectations:
+As one of Veridonia's five foundational pillars, the ELO-based rating system reflects how consistently a participant’s prior decisions have matched the outcomes produced by their community. Over time, this identifies contributors who tend to stay in tune with the group’s evolving standards for what deserves visibility in the feed and whose votes are empirically predictive of full‑community outcomes across many decision types. Higher-rated participants are invited into more consequential review stages, not as arbiters of correctness, but as members whose past participation suggests reliability in navigating the community’s expectations:
 
-- **Dynamic Influence:** Users’ ELO ratings reflect their track record of decisions relative to community outcomes. As these ratings rise, users become eligible for expanded responsibilities—such as participation in Stage‑2 review or, where applicable, appointment as editors. These roles carry more weight in the curation pipeline that governs what appears in the community feed, are fully auditable, and remain conditional on continued performance.
+- **Dynamic Influence:** Users’ ELO ratings reflect their track record of decisions relative to community outcomes. As these ratings rise, users become eligible for expanded responsibilities—such as participation in Stage‑2 review for post publication decisions described in Section 4.3 or, where applicable, appointment as editors. These roles carry more weight in the curation pipeline that governs what appears in the community feed, are fully auditable, and remain conditional on continued performance.
 - **Zero-Sum, Team-Weighted ELO Updates:** After the final decision, voters split into two teams: **winners** (their vote matches the outcome) and **losers** (their vote does not). Rating is reallocated zero-sum between these teams and weighted by their relative strength:
 
   1. Compute each team’s average ELO (winners_avg, losers_avg).
   2. For each participant, compute an update scaled by a constant **K** and the gap between team averages. Members of the **winners** gain ELO, moving upward toward the opposing team’s average; members of the **losers** lose ELO, moving downward toward the opposing team’s average.
   3. The sum of all gains equals the sum of all losses (zero-sum conservation).
   4. This team-weighted update reinforces effective group-level filtering, amplifying the influence of participants who align consistently with community outcomes and reducing that of those who do not.
+
+Conserving total rating makes influence a scarce resource that can only be reallocated from less reliable to more reliable contributors, rather than inflated across the board. Weighting updates by team strength means that the size of each rating transfer depends on the gap between the average ratings of the winning and losing sides: when a lower‑rated group wins against a higher‑rated group, the adjustment is larger than when the higher‑rated group wins as expected.
+
+Because ELO is updated after every decision and across both stages of review, the boundary between lower- and higher-impact roles is permeable. Participants who begin in Stage‑1 review can, through a sustained record of alignment with community outcomes, move into Stage‑2 and eventually into editorial (moderation) roles, while those whose decisions repeatedly diverge from outcomes will see their influence contract. This continual re-evaluation stands in contrast to rigid, once-appointed moderator classes common on other platforms and is intended to support a more bottom-up, renewable form of authority.
+
+The numerical example below illustrates how these small, bounded adjustments operate in a single vote.
 
 **Example: One Voting Stage**
 
@@ -150,6 +159,8 @@ The ELO rating system also encompasses onboarding and participation controls, de
 
 #### 4.2.1 User Onboarding and Baseline Attributes
 
+As a pragmatic defence against large-scale automated abuse, Veridonia currently couples initial user rating to an IP-level baseline while treating this mechanism as provisional rather than core to the system’s philosophy.
+
 - **Initial Assignment:** If the IP address has no previous users, a default ELO rating (e.g., 800) is used.
 - **IP-Based ELO Inheritance:** To protect the platform from bot attacks and coordinated manipulation, all new users inherit the ELO rating assigned to their IP address. After each voting stage, an IP address is updated to reflect the lowest ELO among its associated users. For example, if users from an IP (e.g., 156.156.156.3) have ELO ratings of 850, 700, and 1500, the IP is assigned an ELO of 700. Any new users registering from this IP will begin with an ELO of 700, capped at a default maximum (e.g., 800) for first-time IPs.
 
@@ -157,11 +168,7 @@ While this IP-based inheritance mechanism mitigates certain manipulation risks, 
 
 #### 4.2.2 ELO-Based Throttling Mechanism
 
-Veridonia implements a throttling system that regulates users' ability to post and comment based on their ELO ratings:
-
-- **Rate Limiting:** Users with lower ELO ratings face greater restrictions on how frequently they can post content or comment. This throttling mechanism scales dynamically with ELO scores, and users with particularly low rating may be limited to posting only once per hour, per day, or even per week, depending on the severity of their low ELO.
-- **Cooldown Periods:** After posting or commenting, users experience a mandatory cooldown period before they can contribute again. The duration of this cooldown is inversely proportional to their ELO rating.
-- **Progressive Relaxation:** As users demonstrate consistent quality contributions and their ELO increases, throttling restrictions are gradually relaxed, allowing for more frequent participation.
+Veridonia implements a throttling system that regulates users' ability to post based on their ELO ratings. Concretely, users with lower ELO can post less frequently and experience longer cooldowns between contributions, and as their ELO improves these limits are progressively relaxed.
 
 The throttling mechanism serves several critical functions:
 
@@ -172,6 +179,16 @@ The throttling mechanism serves several critical functions:
 5. **Resource Management:** Throttling helps manage computational resources by preventing system overload from excessive low-quality submissions.
 
 This mechanism reinforces Veridonia's core principle that influence within the community should be earned through demonstrated alignment with community standards and quality contribution.
+
+### 4.3 Multi-Stage Voting for Posts
+
+Multi-stage voting is used specifically for publication decisions about posts that may enter community feeds. The central design question is how to approximate “what the whole community would decide” without asking a large share of the community to vote on every post.
+
+As a reference point, one could imagine drawing a large random sample of the relevant community for each post and taking a single majority vote. This would provide a direct snapshot of average opinion but would be prohibitively expensive for a live online feed: decision latency would grow, and participants would be overwhelmed by constant review demands.
+
+The two‑stage process is an optimisation of this baseline. Stage 1 uses a broad, randomly selected group drawn from the bulk of the community to filter out clearly off‑scope or low‑value submissions at low cost, preserving diversity and representation while reducing volume. Stage 2 then applies the same majority rule to a much smaller group of higher‑rated reviewers whose ELO scores reflect a history of aligning with past community outcomes. Because these participants have repeatedly demonstrated that their judgements track what the broader community tends to decide, their votes serve as a sample‑efficient proxy for a much larger community poll.
+
+In expectation, this arrangement allows Veridonia to achieve outcomes that are comparable to, and on harder or more context‑dependent posts potentially better than, those of a single large undifferentiated vote, while requiring far fewer total votes per decision and keeping latency compatible with an online feed. Other decision types—such as editors voting on maintenance proposals—may use a single stage, with each eligible participant carrying equal weight in that vote, while still relying on ELO to determine eligibility and to update ratings after the fact.
 
 ## 5. Transparency and Self-Governance
 
