@@ -10,7 +10,7 @@ Veridonia is an online feed that experiments with redesigning how feeds are shap
 
 The core aim is to systematically route scarce attention toward high-signal contributions and away from low-value noise. The design rests on five pillars drawn from the whitepaper: sortition (random selection), consensus (majority voting), ELO-based rating, multi-stage review, and full transparency and auditability of votes, rating changes, and moderation actions, complemented by ELO-based throttling of low-rated accounts.
 
-[![How Voting Works](https://img.youtube.com/vi/3gKHqT2c2F0/maxresdefault.jpg)](https://www.youtube.com/watch?v=3gKHqT2c2F0)
+**▶️ [Watch: How Voting Works](https://www.youtube.com/watch?v=3gKHqT2c2F0)**
 
 ---
 
