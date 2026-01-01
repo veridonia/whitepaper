@@ -39,7 +39,7 @@ Random sampling broadens representation and limits coordinated control, ensuring
 Simple majority outcomes determine whether a piece of content advances, anchoring decisions in shared community standards rather than opaque algorithmic prediction.
 
 **3. Prediction-Based Rating System**  
-A dynamic rating captures how reliably a participant’s past decisions have matched community outcomes. Because updates reward being on the eventual majority side, each vote is incentivised to function like a prediction of how the community will decide. This reputation signal governs who is eligible for which responsibilities across the system—for example, participation in higher‑impact reviews, moderation roles, and looser throttling.
+A dynamic rating captures how reliably a participant’s past decisions have matched community outcomes and turns that history into a notion of reputation. This reputation signal governs who is eligible for which responsibilities across the system—for example, participation in higher‑impact reviews, moderation roles, and looser throttling.
 
 **4. Multi-Stage Voting Process for Post Publication**  
 Tiered voting structures how posts move toward publication in community feeds. Early checks expose posts to a broad, low‑cost sample, while later checks use smaller panels drawn from higher‑rated participants to approximate the outcome of a much larger community vote with far fewer total ballots.
