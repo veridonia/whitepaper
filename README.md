@@ -112,4 +112,4 @@ Your contributions are WELCOME. If you find edge cases, propose better metrics, 
 
 ## License
 
-Open source.
+Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0). See `LICENSE`.
