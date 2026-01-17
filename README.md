@@ -1,6 +1,6 @@
 ![Veridonia Logo](assets/logo-veridonia.svg)
 
-**An Online Feed You Can Trust**
+**A More Human-Centric Online Feed**
 
 ---
 

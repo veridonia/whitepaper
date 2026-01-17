@@ -1,111 +1,88 @@
 ![ ](assets/logo-veridonia.svg)
 
-# Veridonia: An Online Feed You Can Trust.
+# Veridonia: A More Human-Centric Online Feed.
 
 _Hlib Semeniuk_
 
 ## Abstract
 
-Veridonia is an experiment in building an online feed platform that redesigns how feeds are shaped. Rather than amplifying whatever drives clicks, it introduces a governance layer that lets communities decide what deserves visibility in the feed rather than relying on engagement-driven ranking, with the goal of improving the signal‑to‑noise ratio of what appears there. The system is designed to structure participation so that communities can surface material they find valuable through transparent procedures, randomised review, and accountable decision-making. Throughout this paper, Veridonia’s design is described using five foundational pillars (defined in Section 4): **sortition** (random participant selection), **consensus** (majority-based decisions), a **prediction-based rating system** (reputation from alignment with outcomes), a **multi-stage voting process** (sample-efficient publication decisions), and **transparency & auditability** (inspectable actions and updates). Together, these elements form a curation framework that differs fundamentally from engagement optimisation and offers a testable alternative for building healthier information spaces.
+Veridonia is an experiment in building an online feed platform around a different objective than the one implicit in most existing feed designs. Editorial feeds answer what editors judge important; engagement-based ranking answers what will capture attention now; chronological feeds answer what was posted most recently. Each answers a coherent question, but none directly answers the question a platform would need to answer if its priority were to allocate visibility in a way that is representative of a community: **what the community as a whole decided should be seen by others today**.
+
+This paper argues that answering that question requires treating feed curation as a governance problem under uncertainty: a system for allocating scarce collective attention through a procedure that is legible, contestable, and fast enough for daily use. Veridonia proposes a **referendum-based feed**—a claim about a process that approximates what a community would decide without requiring everyone to vote on everything. It combines randomised voter selection, majority voting, rating system, multi-stage voting proccess, and transparency and auditability into a pipeline for deciding what advances to visibility.
 
 ## 1. Introduction
 
-The digital landscape today is dominated by engagement metrics such as views, likes, and shares, which serve as the primary indicators of content performance. This focus on the attention economy has led to the widespread prioritisation of sensationalist content over substantive information, contributing to the rapid spread of misinformation, the formation of ideological echo chambers, and a general decline in content quality. ([1](https://doi.org/10.1016/j.tics.2021.02.007), [2](https://doi.org/10.1126/science.aao2998), [3](https://doi.org/10.1073/pnas.2023301118)) Furthermore, opaque algorithms that dictate content visibility and maximise engagement at any cost have amplified mistrust and decreased accountability ([4](https://doi.org/10.1177/1461444816676645)).
+Feed curation is a choice about how a platform allocates attention, and therefore about what kinds of contributions it rewards over time. When that choice is implicit or unstable, it becomes difficult to justify and contest outcomes: users cannot easily answer why something appeared, why something did not, or what behaviour the system is rewarding.
 
-The current paradigm of social media platforms is increasingly misaligned with the broader interests of society. Rather than facilitating meaningful information exchange, these systems have evolved into attention-capture mechanisms engineered to maximise screen time. Their algorithms prioritise engagement through psychological manipulation, often at the expense of informative or socially valuable content. As a result, content with the highest emotional appeal—not necessarily the highest quality—achieves the greatest visibility, while important discourse is frequently relegated to the margins. In effect, emotionally charged noise is amplified, while informational signal is suppressed.
+In practice, large platforms have converged on engagement as the dominant optimisation target. If revenue maximisation is the primary objective, this is a coherent design choice; the cost is that maximising engagement is not the same as maximising the value a user receives given limited time and attention. The result is familiar: sensational and emotionally charged material tends to outcompete slower, context-rich contributions, and misinformation can spread cheaply and quickly. ([1](https://doi.org/10.1016/j.tics.2021.02.007), [2](https://doi.org/10.1126/science.aao2998), [3](https://doi.org/10.1073/pnas.2023301118)) When ranking and moderation are opaque, it also becomes difficult to contest how visibility is allocated. ([4](https://doi.org/10.1177/1461444816676645))
 
-Chronological feeds are sometimes proposed as a corrective because they avoid engagement optimisation. This is a partial improvement, but it still leaves the core problem unsolved: attention remains scarce, and the burden of prioritisation is pushed almost entirely onto the user. In high-volume communities, “fair ordering” does not reliably produce “good allocation.”
+Chronological feeds are sometimes proposed as a corrective because they avoid direct engagement optimisation. This is a partial improvement, but it does not solve the allocation problem under scarcity. Attention remains limited, and prioritisation is largely pushed onto the user. In high-volume communities, recency is a weak proxy for value. Editorial approaches address allocation more directly, but do so by centralising influence in a relatively fixed decision-making class.
 
-Veridonia is conceived as a response to these challenges. Instead of relying on opaque engagement algorithms, it introduces a structure where communities themselves shape what rises to visibility in the feed through open, verifiable procedures. The emphasis is on rebuilding trust in how feed curation happens – who participates, how decisions are made, and how influence is earned – rather than asserting any particular view of what information is correct.
+Veridonia starts from a different premise. If a platform’s priority is to serve its communities rather than to maximise engagement, the question should be different: what the community as a whole decided should be seen by others today. We refer to a system that tries to answer that question, procedurally and at scale, as a referendum-based feed. Section 2 makes the contrast with existing feed designs explicit, and the rest of this paper describes the mechanisms required to implement it without presuming epistemic agreement or demanding universal participation.
 
 ## 2. Problem Statement
 
-Most large-scale social platforms optimise feeds for engagement rather than informational value. Ranking functions are tuned to maximise clicks, reactions, and watch time, not to maximise how much reliable, context-rich information a user receives per unit of attention. This has several predictable, systemic consequences:
+As a baseline, common feed designs can be described in terms of the questions they implicitly answer:
 
-1. **Attention is steered toward noise:** Emotionally charged, sensational, or outrage-inducing posts generate more engagement than slower, context-heavy material, and are therefore amplified disproportionally ([1](https://doi.org/10.1016/j.tics.2021.02.007), [2](https://doi.org/10.1126/science.aao2998)).
-2. **Misinformation spreads more easily than verification:** False or misleading content is often cheaper to produce, more surprising, and more shareable than careful corrections, allowing it to propagate faster and further in engagement-driven systems ([1](https://doi.org/10.1016/j.tics.2021.02.007)).
-3. **Filter bubbles and echo chambers emerge by design:** Personalisation concentrates a user’s feed around already-reinforced views, limiting exposure to high-signal disagreement and cross-cutting information while repeatedly resurfacing familiar, emotionally resonant material ([2](https://doi.org/10.1126/science.aao2998), [3](https://doi.org/10.1073/pnas.2023301118)).
-4. **Curation is opaque and unaccountable:** Proprietary ranking algorithms and limited visibility into moderation decisions make it difficult for users, researchers, or policymakers to inspect how visibility is allocated or to contest systemic failures ([4](https://doi.org/10.1177/1461444816676645)).
-5. **There are downstream harms to individuals and society:** Feeds saturated with high-intensity, low-signal content correlate with elevated anxiety, distraction, and reduced well-being, particularly among younger users ([5](https://doi.org/10.1080/02673843.2019.1590851)).
+1. **Engagement-based feeds**: What do users pay the most attention to?
+2. **Chronological feeds**: What was posted most recently?
+3. **Editorial feeds**: What do editors deem important?
 
-Chronological feeds avoid some of these distortions, but introduce different failures at feed scale:
+The problem is not that these are incoherent. It is that none is designed to answer the question a user is implicitly asking when they open a feed to be informed: what is most worth seeing given limited time and attention. In high-volume communities, this misalignment also makes the resulting allocation of visibility difficult to justify and difficult to contest.
 
-1. **Prioritisation is offloaded to the user:** The feed becomes a firehose in high-volume communities, and users must supply constant attention and effort to find high-signal material.
-2. **Visibility becomes path-dependent and unequal:** Early attention and posting time disproportionately shape outcomes; high-quality contributions can be buried by volume and timing rather than judged on their value to the community.
+The systemic consequences of these baseline designs are well-known:
 
-Taken together, these dynamics describe feeds with a chronically low signal-to-noise ratio: scarce human attention is repeatedly captured by vivid but low-information content, while slower, higher-signal contributions struggle to gain visibility. Addressing this requires intervening not just in individual pieces of content, but in the mechanisms that allocate visibility—how posts are selected, who participates in that selection, and how their influence is earned or withdrawn over time.
+**Engagement-based feeds** amplify what reliably captures attention, steering visibility toward emotionally charged, sensational, or outrage-inducing posts over slower, context-heavy material. ([1](https://doi.org/10.1016/j.tics.2021.02.007), [2](https://doi.org/10.1126/science.aao2998)) Misinformation can spread faster than verification, and personalisation can concentrate users in ideological echo chambers. ([1](https://doi.org/10.1016/j.tics.2021.02.007), [2](https://doi.org/10.1126/science.aao2998), [3](https://doi.org/10.1073/pnas.2023301118)) When ranking and moderation are opaque, the resulting allocation of visibility is difficult to audit or contest. ([4](https://doi.org/10.1177/1461444816676645)) These patterns correlate with downstream harms to well-being when feeds become saturated with high-intensity, low-signal content. ([5](https://doi.org/10.1080/02673843.2019.1590851))
 
-## 3. Design Goals: What a Better Feed Should Be
+**Chronological feeds** avoid direct engagement optimisation, but fail differently at feed scale. They offload prioritisation onto the user, turning the feed into a firehose in high-volume communities, and they produce path-dependent visibility where timing and early attention can bury high-quality contributions. In other words, “fair ordering” does not reliably produce “good allocation.”
 
-A feed is not just a ranking function. It is a system for allocating scarce collective attention under uncertainty. Veridonia’s technical design is meant to approximate the following properties; these define what “better” means in this paper and make the proposal testable. The mapping from these goals to Veridonia’s five pillars is given in Section 4.
+**Editorial feeds** provide a clear decision procedure, but centralise influence and scale poorly across diverse, fast-moving communities. They replace broad representation with a persistent decision-making class, which can be effective in some contexts but does not generalise as a community-governance model for everyday feed allocation.
+
+Platforms are sometimes described as “democratic” because users can vote on content. But even minimal democratic systems have basic procedural attributes: (1) a defined question, (2) a defined electorate, (3) equal vote weight, and (4) a clear outcome. On Reddit, for example, the question an upvote is answering is often ambiguous (agreement, quality, relevance, humour, signalling), and there is little cost to treating those meanings as interchangeable. The electorate is also ill-defined in practice: outcomes are shaped by who happens to see a post early, who is online at the right time, and increasingly by automated participation. Vote weight is not equal, because early votes disproportionately shape visibility and moderation powers act as a persistent veto. Finally, the outcome is not a single decision with closure but a ranking that can be overridden by later attention or moderator intervention. The point is not that Reddit should be a referendum. It is that “voting exists” is not enough to make visibility allocation democratic in any minimal procedural sense.
+
+Taken together, these dynamics describe a persistent allocation failure. Engagement-based ranking privileges what captures attention; chronological ordering pushes prioritisation onto users and makes outcomes sensitive to timing; editorial allocation can be coherent but concentrates influence in a relatively fixed decision-making class. In each case, visibility becomes difficult to justify and difficult to contest, and high-signal contributions can be buried by volume, path dependence, or centralised judgement. Section 3 translates these failures into concrete design goals: the properties a feed should satisfy if it aims to allocate visibility more representatively and more robustly under feed constraints.
+
+## 3. Design Goals: What a More Human-Centric Feed Should Be
+
+A feed is not just a ranking function. It is a system for allocating scarce collective attention under uncertainty. Veridonia’s technical design is meant to approximate the following properties; these define what “more human-centric” means in this paper and make the proposal testable. The mapping from these goals to Veridonia’s five pillars is given in Section 4.
 
 ### 3.1 Representative under uncertainty
 
-**Requirement:** A feed should reflect what a community would broadly consider worth attention without requiring everyone to participate in every decision. Representation should be statistical, not exhaustive.
-
-**Why this matters:** Chronological feeds offload all prioritisation onto the user; engagement feeds replace representation with behavioural prediction. Both fail differently.
-
-**Implications:** For stable communities, decisions on what enters the feed should remain broadly consistent under repeated sampling, and should not depend on a small set of persistent decision-makers.
+A feed should reflect what a community would broadly consider worth attention without requiring everyone to participate in every decision. Representation should be statistical rather than exhaustive: under repeated random sampling, outcomes should be broadly stable and not depend on a small set of persistent decision-makers.
 
 ### 3.2 Resistant to capture, not dependent on trust
 
-**Requirement:** A feed should remain usable even when some participants act strategically, maliciously, or in coordination. Safety should come from structure rather than assuming good behaviour.
-
-**Why this matters:** Many platforms collapse because influence is either cheap to accumulate or permanent once acquired.
-
-**Implications:** Successful capture should require sustained resources and coordination, with detectable traces in voting patterns and rating movements rather than silent, stable control.
+A feed should remain usable even when some participants act strategically, maliciously, or in coordination. Safety should come from structure rather than assumed good behaviour: influence should be costly to acquire and maintain, and attempted capture should leave detectable traces in voting patterns and rating movements rather than producing silent, stable control.
 
 ### 3.3 Open to participation, selective in influence
 
-**Requirement:** Anyone should be able to participate, but no one should have unlimited or permanent influence. Influence must be earned continuously.
-
-**Why this matters:** “Low barrier to entry” and “quality control” are usually treated as opposites; a feed-scale system must separate voice from sustained weight.
-
-**Implications:** New users can participate immediately, but high-impact roles should churn over time; sustained influence should correlate with sustained alignment rather than early accumulation.
+Anyone should be able to participate, but no one should have unlimited or permanent influence. A feed-scale system should separate voice from sustained weight: new users can participate immediately, while high-impact roles should churn over time and remain conditional on continued performance rather than early accumulation.
 
 ### 3.4 Self-correcting over time
 
-**Requirement:** A feed should be able to admit error, change its mind, and reallocate influence without manual intervention or regime change.
-
-**Why this matters:** Engagement systems lock in early outcomes; moderator-centric systems ossify power.
-
-**Implications:** Influence should be reversible: users (including editors) should be able to lose power through performance, and communities should be able to evolve norms without replacing governance.
+A feed should be able to admit error, change its mind, and reallocate influence without manual intervention or regime change. Influence should be reversible: users (including editors) should be able to lose power through performance, and communities should be able to evolve norms without replacing governance.
 
 ### 3.5 Signal-prioritising by incentive, not intention
 
-**Requirement:** A feed should not depend on users being wise, informed, or altruistic. It should reward behaviours that produce signal regardless of motive.
-
-**Why this matters:** Systems that assume better norms will emerge tend to fail under adversarial incentives and scale.
-
-**Implications:** Users seeking influence should be incentivised to invest effort in judgements that generalise across the community, not merely to maximise engagement or factional mobilisation.
+A feed should not depend on users being wise, informed, or altruistic. It should reward behaviours that produce signal regardless of motive, incentivising participants who seek influence to invest effort in judgements that generalise across the community rather than to maximise engagement or factional mobilisation.
 
 ### 3.6 Legible and contestable
 
-**Requirement:** Participants should be able to form a mental model of why content appears or does not appear. Decisions should be challengeable without exiting the system.
-
-**Why this matters:** Opacity destroys trust faster than disagreement.
-
-**Implications:** Users should be able to answer “why did I see this?” and “why didn’t this appear?” with reference to concrete procedures, and appeals should be visible and tractable.
+Participants should be able to form a mental model of why content appears or does not appear. Decisions should be challengeable without exiting the system: users should be able to answer “why did I see this?” and “why didn’t this appear?” with reference to concrete procedures, and appeals should be visible and tractable.
 
 ### 3.7 Fast enough for daily use
 
-**Requirement:** A feed that is correct but slow is functionally unusable. Speed is a constraint, not a bonus feature.
-
-**Why this matters:** Pure deliberation systems do not scale to feed-like latency and volume.
-
-**Implications:** For typical communities, time-to-decision should fit into daily usage patterns, and per-user review load should stay bounded as content volume grows.
+A feed that is correct but slow is functionally unusable. Speed is a constraint: for typical communities, time-to-decision should fit daily usage patterns, and per-user review load should stay bounded as content volume grows.
 
 ### 3.8 Procedural, not epistemic
 
-**Requirement:** A feed should not claim to know what is true, important, or correct. It should claim only that its process is fair, inspectable, and adaptive.
+A feed should not claim to know what is true, important, or correct. It should claim only that its process is fair, inspectable, and adaptive, so disagreements can be addressed by disputing procedure (sampling, rules, appeals) rather than by appeals to authority or opaque optimisation.
 
-**Why this matters:** This framing makes the system defensible in pluralistic and adversarial environments, where epistemic consensus is not available.
-
-**Implications:** Disagreements should be addressable by disputing procedure (sampling, rules, appeals) rather than by appeals to authority or opaque optimisation.
+The sections that follow map these goals to a concrete mechanism set. Section 4 introduces Veridonia’s five pillars, and shows how they are used to implement a referendum-based feed under practical constraints.
 
 ## 4. Veridonia's Proposed Solution
 
-Veridonia introduces a community-driven approach to structuring visibility in its online feed. Instead of predicting what will maximise engagement, it delegates decisions about which posts appear in the feed to a sequence of transparent and well-defined steps that organise how participants review content. It does not presume that individual reviewers are free of bias; partiality and local perspective are treated as unavoidable features of human judgement. The design focus is therefore on how those judgements are sampled, combined, and rewarded. The design goals in Section 3 define the target properties of a “better feed”; the pillars below are the tools Veridonia uses to approximate them under online-feed constraints.
+Veridonia introduces a community-driven approach to structuring visibility in its online feed. The goal is to implement a referendum-based feed: a procedure intended to approximate what a community as a whole would decide should be seen by others, under constraints of scale and limited attention. The pillars below describe the mechanism set used to meet the design goals in Section 3—how participants are sampled, how decisions are made, how influence is earned and revoked over time, and how the process remains inspectable.
 
 **1. Sortition (Randomized Participant Selection)**  
 Random sampling broadens representation and limits coordinated control, ensuring that no fixed group consistently decides outcomes and that each decision reflects a changing cross‑section of the community.
