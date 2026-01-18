@@ -8,7 +8,7 @@ _Hlib Semeniuk_
 
 Veridonia is an experiment in building an online feed platform around a different objective than the one implicit in most existing feed designs. Editorial feeds answer what editors judge important; engagement-based ranking answers what will capture attention now; chronological feeds answer what was posted most recently. Each answers a coherent question, but none directly answers the question a platform would need to answer if its priority were to allocate visibility in a way that is representative of a community: **what the community as a whole decided should be seen by others today**.
 
-This paper argues that answering that question requires treating feed curation as a governance problem under uncertainty: a system for allocating scarce collective attention through a procedure that is legible, contestable, and fast enough for daily use. Veridonia proposes a **referendum-based feed**—a claim about a process that approximates what a community would decide without requiring everyone to vote on everything. It combines randomised voter selection, majority voting, rating system, multi-stage voting proccess, and transparency and auditability into a pipeline for deciding what advances to visibility.
+This paper argues that answering that question requires treating feed curation as a governance problem under uncertainty: a system for allocating scarce collective attention through a procedure that is legible, contestable, and fast enough for daily use. Veridonia proposes a **referendum-like feed**—a claim about a process that approximates what a community would decide without requiring everyone to vote on everything. It combines randomised voter selection, majority voting, rating system, multi-stage voting proccess, and transparency and auditability into a pipeline for deciding what advances to visibility.
 
 ## 1. Introduction
 
@@ -18,7 +18,7 @@ In practice, large platforms have converged on engagement as the dominant optimi
 
 Chronological feeds are sometimes proposed as a corrective because they avoid direct engagement optimisation. This is a partial improvement, but it does not solve the allocation problem under scarcity. Attention remains limited, and prioritisation is largely pushed onto the user. In high-volume communities, recency is a weak proxy for value. Editorial approaches address allocation more directly, but do so by centralising influence in a relatively fixed decision-making class.
 
-Veridonia starts from a different premise. If a platform’s priority is to serve its communities rather than to maximise engagement, the question should be different: what the community as a whole decided should be seen by others today. We refer to a system that tries to answer that question, procedurally and at scale, as a referendum-based feed. Section 2 makes the contrast with existing feed designs explicit, and the rest of this paper describes the mechanisms required to implement it without presuming epistemic agreement or demanding universal participation.
+Veridonia starts from a different premise. If a platform’s priority is to serve its communities rather than to maximise engagement, the question should be different: what the community as a whole decided should be seen by others today. We refer to a system that tries to answer that question, procedurally and at scale, as a referendum-like feed. Section 2 makes the contrast with existing feed designs explicit, and the rest of this paper describes the mechanisms required to implement it without presuming epistemic agreement or demanding universal participation.
 
 ## 2. Problem Statement
 
@@ -78,11 +78,11 @@ A feed that is correct but slow is functionally unusable. Speed is a constraint:
 
 A feed should not claim to know what is true, important, or correct. It should claim only that its process is fair, inspectable, and adaptive, so disagreements can be addressed by disputing procedure (sampling, rules, appeals) rather than by appeals to authority or opaque optimisation.
 
-The sections that follow map these goals to a concrete mechanism set. Section 4 introduces Veridonia’s five pillars, and shows how they are used to implement a referendum-based feed under practical constraints.
+The sections that follow map these goals to a concrete mechanism set. Section 4 introduces Veridonia’s five pillars, and shows how they are used to implement a referendum-like feed under practical constraints.
 
 ## 4. Veridonia's Proposed Solution
 
-Veridonia introduces a community-driven approach to structuring visibility in its online feed. The goal is to implement a referendum-based feed: a procedure intended to approximate what a community as a whole would decide should be seen by others, under constraints of scale and limited attention. The pillars below describe the mechanism set used to meet the design goals in Section 3—how participants are sampled, how decisions are made, how influence is earned and revoked over time, and how the process remains inspectable.
+Veridonia introduces a community-driven approach to structuring visibility in its online feed. The goal is to implement a referendum-like feed: a procedure intended to approximate what a community as a whole would decide should be seen by others, under constraints of scale and limited attention. The pillars below describe the mechanism set used to meet the design goals in Section 3—how participants are sampled, how decisions are made, how influence is earned and revoked over time, and how the process remains inspectable.
 
 **1. Sortition (Randomized Participant Selection)**  
 Random sampling broadens representation and limits coordinated control, ensuring that no fixed group consistently decides outcomes and that each decision reflects a changing cross‑section of the community.
