@@ -44,7 +44,7 @@ Taken together, these dynamics describe a persistent allocation failure. Engagem
 
 ## 3. Design Goals: What a More Human-Centric Feed Should Be
 
-A feed is not just a ranking function. It is a system for allocating scarce collective attention under uncertainty. Veridonia’s technical design is meant to approximate the following properties; these define what “more human-centric” means in this paper and make the proposal testable. The mapping from these goals to Veridonia’s five pillars is given in Section 4.
+A feed is not just a ranking function. It is a system for allocating scarce collective attention under uncertainty. Veridonia’s technical design is meant to approximate the following properties; these define what “more human-centric” means in this paper and make the proposal testable. The mapping from these goals to Veridonia’s five pillars is given in Appendix A.
 
 ### 3.1 Representative under uncertainty
 
@@ -78,63 +78,26 @@ A feed that is correct but slow is functionally unusable. Speed is a constraint:
 
 A feed should not claim to know what is true, important, or correct. It should claim only that its process is fair, inspectable, and adaptive, so disagreements can be addressed by disputing procedure (sampling, rules, appeals) rather than by appeals to authority or opaque optimisation.
 
-The sections that follow map these goals to a concrete mechanism set. Section 4 introduces Veridonia’s five pillars, and shows how they are used to implement a referendum-like feed under practical constraints.
+The sections that follow map these goals to a concrete mechanism set. Section 4 introduces Veridonia’s five pillars and describes how they are used to implement a referendum-like feed under practical constraints.
 
 ## 4. Veridonia's Proposed Solution
 
-Veridonia introduces a community-driven approach to structuring visibility in its online feed. The goal is to implement a referendum-like feed: a procedure intended to approximate what a community as a whole would decide should be seen by others, under constraints of scale and limited attention. The pillars below describe the mechanism set used to meet the design goals in Section 3—how participants are sampled, how decisions are made, how influence is earned and revoked over time, and how the process remains inspectable.
+Veridonia introduces a community-driven approach to structuring visibility in its online feed. The goal is to implement a referendum-like feed: a procedure intended to approximate what a community as a whole would decide should be seen by others, under constraints of scale and limited attention. The pillars below describe the mechanism set used to meet the design goals in Section 3—how participants are sampled, how decisions are made, how influence is earned and revoked over time, and how the process remains inspectable. Appendix A summarises how each design goal maps to one or more pillars.
 
 **1. Sortition (Randomized Participant Selection)**  
 Random sampling broadens representation and limits coordinated control, ensuring that no fixed group consistently decides outcomes and that each decision reflects a changing cross‑section of the community.
 
-| Design goal                                      | Contribution                                                                |
-| ------------------------------------------------ | --------------------------------------------------------------------------- |
-| 3.1 Representative under uncertainty             | Samples a changing cross-section of the community rather than a fixed group |
-| 3.2 Resistant to capture, not dependent on trust | Makes targeted influence harder by making reviewer selection unpredictable  |
-| 3.7 Fast enough for daily use                    | Avoids referenda-scale participation burdens                                |
-
 **2. Consensus (Majority-Based Decision-Making)**  
 Simple majority outcomes determine whether a piece of content advances, anchoring decisions in shared community standards rather than opaque algorithmic prediction.
 
-| Design goal                                         | Contribution                                                                             |
-| --------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| 3.1 Representative under uncertainty                | Aggregates sampled judgements into a clear, legible outcome                              |
-| 3.5 Signal-prioritising by incentive, not intention | Keeps the optimisation target explicit and stable                                        |
-| 3.6 Legible and contestable                         | Keeps outcomes contestable via reversible decisions (e.g., re-voting) under a clear rule |
-| 3.8 Procedural, not epistemic                       | Avoids hidden optimisation targets                                                       |
-
-**3. Prediction-Based Rating System**  
+**3. Prediction-Based Rating System (PBRS)**  
 A dynamic rating captures how reliably a participant’s past decisions have matched community outcomes and turns that history into a notion of reputation. This reputation signal governs who is eligible for which responsibilities across the system—for example, participation in higher‑impact reviews, moderation roles, and looser throttling.
 
-| Design goal                                         | Contribution                                                                                                                                         |
-| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 3.2 Resistant to capture, not dependent on trust    | Makes long-term influence expensive to maintain without continued alignment                                                                          |
-| 3.3 Open to participation, selective in influence   | Converts historical alignment into conditional, revocable influence and enables rating-based throttling to limit high-volume low-alignment behaviour |
-| 3.4 Self-correcting over time                       | Reallocates influence after each decision, using zero-sum updates to prevent inflation and force trade-offs                                          |
-| 3.5 Signal-prioritising by incentive, not intention | Rewards accurate anticipation of community outcomes rather than declared intentions                                                                  |
-| 3.7 Fast enough for daily use                       | Reduces required sample size by concentrating decisions where they are most informative                                                              |
-| 3.8 Procedural, not epistemic                       | Grounds influence in outcomes rather than credentials                                                                                                |
-
-**4. Multi-Stage Voting Process for Post Publication**  
+**4. Multi-Stage Voting Process (MSVP) for Post Publication**  
 Tiered voting structures how posts move toward publication in community feeds. Early checks expose posts to a broad, low‑cost sample, while later checks use smaller panels drawn from higher‑rated participants to approximate the outcome of a much larger community vote with far fewer total ballots.
-
-| Design goal                                         | Contribution                                                                                                |
-| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| 3.1 Representative under uncertainty                | Approximates large-population outcomes with far fewer votes                                                 |
-| 3.2 Resistant to capture, not dependent on trust    | Reduces attack surface by filtering volume early                                                            |
-| 3.3 Open to participation, selective in influence   | Routes final decisions to reviewers with demonstrated track records without excluding broader participation |
-| 3.4 Self-correcting over time                       | Lets roles expand or contract dynamically as the rating distribution shifts                                 |
-| 3.5 Signal-prioritising by incentive, not intention | Concentrates review capacity among participants who have repeatedly produced high-signal judgements         |
-| 3.7 Fast enough for daily use                       | Approximates large votes with fewer ballots and less delay                                                  |
 
 **5. Transparency and Auditability**  
 Every moderation action, vote tally, and rating adjustment is publicly visible. This shifts trust away from assumptions about correctness and toward verifiable process, and allows communities to inspect how influence is earned and exercised.
-
-| Design goal                                      | Contribution                                                     |
-| ------------------------------------------------ | ---------------------------------------------------------------- |
-| 3.2 Resistant to capture, not dependent on trust | Makes coordinated abuse more visible and investigable            |
-| 3.6 Legible and contestable                      | Makes decisions, vote tallies, and rating changes inspectable    |
-| 3.8 Procedural, not epistemic                    | Shifts legitimacy from assumed correctness to verifiable process |
 
 ## 5. System Architecture
 
@@ -171,7 +134,7 @@ The structure of this pipeline is chosen to balance three goals: keep decisions 
 - **Transparency:** All votes, outcomes, and subsequent rating changes are publicly logged for auditability.
 - **Internal Echo Reduction:** Within a single community, the combination of random selection and majority outcomes tends to reward content that can attract support across factions. This pushes curation toward broadly acceptable signals and dampens the formation of narrow internal echo chambers, while still allowing distinct communities to maintain their own standards.
 
-### 5.2 Prediction-Based Rating System
+### 5.2 Prediction-Based Rating System (PBRS)
 
 As one of Veridonia's five foundational pillars, the prediction-based rating system reflects how consistently a participant’s prior decisions have matched the outcomes produced by their community. Over time, this identifies contributors whose votes are empirically predictive of full‑community outcomes across many decision types. In practice, Veridonia implements this reputation score using an **ELO-style update rule**: after each decision, rating is transferred (zero-sum) from the losing side to the winning side, scaled by how “expected” the outcome was given each side’s average rating. Higher-rated participants are invited into more consequential review stages, not as arbiters of correctness, but as members whose past participation suggests reliability in navigating the community’s expectations:
 
@@ -267,7 +230,7 @@ The throttling mechanism serves several critical functions:
 
 This mechanism reinforces Veridonia's core principle that influence within the community should be earned through demonstrated alignment with community standards and quality contribution.
 
-### 5.3 Multi-Stage Voting for Posts
+### 5.3 Multi-Stage Voting Process (MSVP) for Posts
 
 Multi-stage voting is used specifically for publication decisions about posts that may enter community feeds. The central design question is how to approximate “what the whole community would decide” without asking a large share of the community to vote on every post.
 
@@ -305,7 +268,36 @@ A second question is sustainability. We will evaluate whether a non-advertising 
 
 Ultimately, Veridonia is a falsifiable proposal. If outcomes under real use do not beat practical baselines—or if funding compromises the aims—it should be revised or retired. If they do, the system may be worth iterating on. We invite researchers and communities to test, critique, and adapt these ideas.
 
-## 9. References
+## 9. Appendix A: Mapping Design Goals to Pillars
+
+This appendix collects the mapping between the design goals in Section 3 and the five pillars introduced in Section 4.
+
+| Goal                                            | Pillar                         | Contribution                                                                                                |
+| ----------------------------------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| Representation                                  | Sortition                      | Samples a changing cross-section of the community rather than a fixed group                                 |
+|                                                 | Consensus                      | Aggregates sampled judgements into a clear, legible outcome                                                 |
+|                                                 | MSVP                           | Approximates large-population outcomes with far fewer votes                                                 |
+| Capture resistance                              | Sortition                      | Makes targeted influence harder by making reviewer selection unpredictable                                  |
+|                                                 | PBRS                           | Makes long-term influence expensive to maintain without continued alignment                                 |
+|                                                 | MSVP                           | Reduces attack surface by filtering volume early                                                            |
+|                                                 | Transparency                   | Makes coordinated abuse more visible and investigable                                                       |
+| Open participation                              | PBRS                           | Converts historical alignment into conditional, revocable influence and enables rating-based throttling     |
+|                                                 | MSVP                           | Routes final decisions to reviewers with demonstrated track records without excluding broader participation |
+| Self-correction                                 | PBRS                           | Reallocates influence after each decision, using zero-sum updates to prevent inflation and force trade-offs |
+|                                                 | MSVP                           | Lets roles expand or contract dynamically as the rating distribution shifts                                 |
+| Signal incentives                               | Consensus                      | Keeps the optimisation target explicit and stable                                                           |
+|                                                 | PBRS                           | Rewards accurate anticipation of community outcomes rather than declared intentions                         |
+|                                                 | MSVP                           | Concentrates review capacity among participants who have repeatedly produced high-signal judgements         |
+| Legible & contestable                           | Consensus                      | Keeps outcomes contestable via reversible decisions (e.g., re-voting) under a clear rule                    |
+|                                                 | Transparency                   | Makes decisions, vote tallies, and rating changes inspectable                                               |
+| Daily speed                                     | Sortition                      | Avoids referenda-scale participation burdens                                                                |
+|                                                 | PBRS                           | Reduces required sample size by concentrating decisions where they are most informative                     |
+|                                                 | MSVP                           | Approximates large votes with fewer ballots and less delay                                                  |
+| Procedural (not epistemic)                      | Consensus                      | Avoids hidden optimisation targets                                                                          |
+|                                                 | PBRS                           | Grounds influence in outcomes rather than credentials                                                       |
+|                                                 | Transparency                   | Shifts legitimacy from assumed correctness to verifiable process                                            |
+
+## 10. References
 
 1. Pennycook, G., & Rand, D. G. (2021). "The Psychology of Fake News." _Trends in Cognitive Sciences_, 25(5), 388–402. [https://doi.org/10.1016/j.tics.2021.02.007](https://doi.org/10.1016/j.tics.2021.02.007)
 
