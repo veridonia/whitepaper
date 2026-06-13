@@ -8,7 +8,7 @@ _Hlib Semeniuk_
 
 Veridonia is an experiment in building an online feed platform around a different objective than the one implicit in most existing feed designs. Editorial feeds answer what editors judge important; engagement-based ranking answers what will capture attention now; chronological feeds answer what was posted most recently. Each answers a coherent question, but none directly answers the question a platform would need to answer if its priority were to allocate visibility in a way that is representative of a community: **what each community as a whole decided should be seen by others today**.
 
-This paper argues that answering that question requires treating feed curation as a governance problem under uncertainty: a system for allocating scarce collective attention through a procedure that is legible, contestable, and fast enough for daily use. Veridonia proposes a **referendum-like feed**—a claim about a process that approximates what a community would decide without requiring everyone to vote on everything. It combines randomised voter selection, majority voting, rating system, multi-stage voting proccess, and transparency and auditability into a pipeline for deciding what advances to visibility.
+This paper argues that answering that question requires treating feed curation as a governance problem under uncertainty: a system for allocating scarce collective attention through a procedure that is legible, contestable, and fast enough for daily use. Veridonia proposes a **referendum-like feed**—a claim about a process that approximates what a community would decide without requiring everyone to vote on everything. It combines randomised voter selection, majority voting, rating system, multi-stage voting proccess, and transparency and auditability into a pipeline for deciding what advances to visibility. The same philosophy extends to a second surface—how the comments beneath a post are ordered—which Section 6 addresses through pairwise comparison rather than accumulated reactions.
 
 ## 1. Introduction
 
@@ -39,6 +39,8 @@ The systemic consequences of these baseline designs are well-known:
 **Editorial feeds** provide a clear decision procedure, but centralise influence and scale poorly across diverse, fast-moving communities. They replace broad representation with a persistent decision-making class, which can be effective in some contexts but does not generalise as a community-governance model for everyday feed allocation.
 
 Platforms are sometimes described as “democratic” because users can vote on content. But even minimal democratic systems have basic procedural attributes: (1) a defined question, (2) a defined electorate, (3) equal vote weight, and (4) a clear outcome. On Reddit, for example, the question an upvote is answering is often ambiguous (agreement, quality, relevance, humour, signalling), and there is little cost to treating those meanings as interchangeable. The electorate is also ill-defined in practice: outcomes are shaped by who happens to see a post early, who is online at the right time, and increasingly by automated participation. Vote weight is not equal, because early votes disproportionately shape visibility and moderation powers act as a persistent veto. Finally, the outcome is not a single decision with closure but a ranking that can be overridden by later attention or moderator intervention. The point is not that Reddit should be a referendum. It is that “voting exists” is not enough to make visibility allocation democratic in any minimal procedural sense.
+
+The same failures recur one layer down, in the comments beneath a post. Ordering a discussion by accumulated likes or upvotes inherits the ambiguity of the signal, rewards whichever comment was posted first, can be moved by directing accounts at a chosen target, and—where a downvote exists—supplies a public instrument for disapproval rather than a sorting input. Allocating visibility within a thread is subject to the same scrutiny as allocating it across the feed.
 
 Taken together, these dynamics describe a persistent allocation failure. Engagement-based ranking privileges what captures attention; chronological ordering pushes prioritisation onto users and makes outcomes sensitive to timing; editorial allocation can be coherent but concentrates influence in a relatively fixed decision-making class. In each case, visibility becomes difficult to justify and difficult to contest, and high-signal contributions can be buried by volume, path dependence, or centralised judgement. Section 3 translates these failures into concrete design goals: the properties a feed should satisfy if it aims to allocate visibility more representatively and more robustly under feed constraints.
 
@@ -98,6 +100,8 @@ Tiered voting structures how posts move toward publication in community feeds. E
 
 **5. Transparency and Auditability**  
 Every moderation action, vote tally, and rating adjustment is publicly visible. This shifts trust away from assumptions about correctness and toward verifiable process, and allows communities to inspect how influence is earned and exercised.
+
+These pillars structure post publication. Ordering the comments beneath a published post is a related but distinct problem—a relative ranking over many contributions rather than a single accept-or-reject decision—and Veridonia answers it with the same rating philosophy applied through pairwise comparison rather than majority voting. Section 6 describes this.
 
 ## 5. System Architecture
 
@@ -240,7 +244,26 @@ The two‑stage process is an optimisation of this baseline. Stage 1 uses a broa
 
 In expectation, this arrangement allows Veridonia to achieve outcomes that are comparable to, and on harder or more context‑dependent posts potentially better than, those of a single large undifferentiated vote, while requiring far fewer total votes per decision and keeping latency compatible with an online feed. Other decision types—such as editors voting on maintenance proposals—may use a single stage, with each eligible participant carrying equal weight in that vote, while still relying on rating to determine eligibility and to update ratings after the fact.
 
-## 6. Transparency and Self-Governance
+## 6. Comment Ranking
+
+Sections 4 and 5 describe how Veridonia decides which posts enter a community feed. The discussion beneath a published post poses a related but distinct allocation problem: not whether a contribution should be visible at all, but in what order a thread's comments should be presented.
+
+Publication, as Section 5 describes, is a deliberately binary decision—should a post enter the feed or not—answered by majority voting, rather than the continuous, revisable ranking that engagement systems produce. Ordering a thread is different in kind: a relative ranking over many contributions rather than a single accept-or-reject outcome. Ordering it by accumulated likes or upvotes would carry the reaction-based failures of Section 2 into the discussion layer—ambiguous signal, first-mover advantage, low manipulation cost, anchoring on visible counts, and the punitive dynamics of a downvote. The direct way to produce a relative order is to ask for relative judgements—comparisons—rather than to tally isolated reactions to each comment on its own. Veridonia therefore orders comments by pairwise comparison.
+
+### 6.1 Mechanism: pairwise comparison with Elo aggregation
+
+Comments are arranged hierarchically. When a participant opens a level of a thread, the system may present two of its comments and ask one defined question: which of the two should be seen by more people.
+
+- **Pair selection.** Pairs are drawn at random, weighted toward the comments compared the fewest times, so newly posted comments are exposed to evaluation rather than stranded at the bottom of the order. Candidates are paired within a bounded rating window, keeping comparisons informative rather than lopsided.
+- **Aggregation.** Each comparison updates both comments' ratings under an Elo-style rule—the rating family already used for participants in Section 5.2—with a fixed update factor and a common initial rating for every comment. A stable total order emerges from many independent pairwise outcomes.
+- **Concealment.** In-progress ratings and win/loss counts are not shown before a vote, so the judgement rests on the comments themselves rather than on an existing tally.
+- **Eligibility and load.** Comparisons are offered probabilistically to active community members, and only once a level holds enough comments for ranking to be meaningful; a participant is asked to compare at most once per level, bounding review load.
+
+### 6.2 Relation to the design goals
+
+The Section 3 goals govern this mechanism, met by different means. Because a participant cannot choose which comments they compare, moving the order requires winning a sufficient share of randomly drawn comparisons rather than directing votes at a target—an analogue, for ranking, of the sortition that protects publication (Goal 3.2). The question is fixed and concrete, and tallies are concealed, so the recorded signal is not diluted by reaction ambiguity or anchored on an existing count (Goal 3.5). A comment's position derives from inspectable pairwise outcomes and rating movements rather than an opaque score (Goal 3.6). And because the mechanism offers no way to express disapproval of a comment or to act on a visible negative count, a comment that fares poorly is simply ranked lower, not publicly downvoted.
+
+## 7. Transparency and Self-Governance
 
 Veridonia is designed to be an open and self-regulating ecosystem:
 
@@ -252,11 +275,11 @@ Veridonia does not require sign-up to participate and does not track users acros
 
 At the same time, users retain full control of their data. All activity histories can be accessed and verified without compromising security, reinforcing both transparency and individual privacy.
 
-## 7. Additional Core Principles
+## 8. Additional Core Principles
 
 **Independence from Advertiser Influence:** Veridonia is free from advertiser funding, ensuring that feed curation is not driven by advertiser incentives and is dictated solely by community standards. The platform will never employ advertising as a monetisation strategy. Instead, future revenue models may involve subscriptions or donations, but public benefit content—such as community feeds—will always remain free to access. Only private benefit features may be offered as paid options, balancing sustainability with Veridonia’s commitment to open access and public good.
 
-## 8. Conclusion
+## 9. Conclusion
 
 Veridonia is an experiment in community-guided online feeds. By pairing sortition and tiered voting with a prediction-based rating model (ELO-style), it replaces engagement optimisation with incentives that reward careful participation. Contributions that repeatedly fall outside the community’s standards carry rating and throttling costs, while steady, attentive decisions expand a participant’s role in shaping what the community sees in its feeds. The expectation is that such incentives produce feeds that feel more deliberate, legible, and aligned with the community’s own preferences, with a healthier balance of signal over noise than engagement-driven alternatives.
 
@@ -268,7 +291,7 @@ A second question is sustainability. We will evaluate whether a non-advertising 
 
 Ultimately, Veridonia is a falsifiable proposal. If outcomes under real use do not beat practical baselines—or if funding compromises the aims—it should be revised or retired. If they do, the system may be worth iterating on. We invite researchers and communities to test, critique, and adapt these ideas.
 
-## 9. Appendix A: Mapping Design Goals to Pillars
+## 10. Appendix A: Mapping Design Goals to Pillars
 
 This appendix collects the mapping between the design goals in Section 3 and the five pillars introduced in Section 4.
 
@@ -297,7 +320,7 @@ This appendix collects the mapping between the design goals in Section 3 and the
 |                                                 | PBRS                           | Grounds influence in outcomes rather than credentials                                                       |
 |                                                 | Transparency                   | Shifts legitimacy from assumed correctness to verifiable process                                            |
 
-## 10. References
+## 11. References
 
 1. Pennycook, G., & Rand, D. G. (2021). "The Psychology of Fake News." _Trends in Cognitive Sciences_, 25(5), 388–402. [https://doi.org/10.1016/j.tics.2021.02.007](https://doi.org/10.1016/j.tics.2021.02.007)
 
