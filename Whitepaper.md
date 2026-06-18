@@ -205,9 +205,9 @@ Although this example describes only one isolated voting stage, the same mechani
 ![Distribution of Users by Rating. Simulation results showing the equilibrium state produced by repeated voting and rating updates. Most users cluster around the mean, with progressively smaller groups at higher and lower ratings corresponding to the initial and advanced decision groups. Dashed lines mark the 70th and 99th percentiles by user count.](assets/veridonia-users-distribution.png)
 
 **Local Rating & Elected Cross-Community Stewards (TBD)**  
-Rating remains **strictly local to each community**. A user's standing in one community neither boosts nor suppresses their standing in another, and no global rating is ever computed. This prevents the rise of "universal elites" and keeps influence contextual to demonstrated expertise.
+A user's rating is **earned within a single community and confined to it**: being trusted in one community never confers rating or expert status in another. The only way rating crosses a community boundary is **downward**. To deny bad actors a clean slate, a new user's starting rating is floored to the lowest rating already associated with them—both across the communities they already belong to and via the IP-level baseline described in Section 5.2.1—so poor conduct in one community cannot be escaped by starting fresh in another. Nothing ever carries rating *upward* across communities, which prevents the rise of "universal elites" and keeps influence contextual to demonstrated expertise.
 
-In the future, Veridonia may introduce a small set of elected cross-community stewards ("chief editors") with limited administrative powers (e.g., emergency takedowns, cross-community maintenance). Details of their election, scope, and accountability are **to be determined** and may draw inspiration from Wikipedia's steward model. Crucially, these roles would not mix or merge community ratings, and routine content decisions would remain governed locally.
+Today a small set of appointed administrators ("chief editors") hold limited cross-community powers (e.g., emergency takedowns, closing communities). In the future, Veridonia intends to replace this held role with an *elected, accountable* cross-community stewardship of similarly limited scope. Details of that election, scope, and accountability are **to be determined** and may draw inspiration from Wikipedia's steward model. Crucially, these roles would not mix or merge community ratings, and routine content decisions would remain governed locally.
 
 The rating system also encompasses onboarding and participation controls, detailed below:
 
@@ -268,10 +268,10 @@ The Section 3 goals govern this mechanism, met by different means. Because a par
 Veridonia is designed to be an open and self-regulating ecosystem:
 
 - **Public Auditability:** All voting records, rating adjustments, and moderation actions affecting what appears in the feed are logged and accessible for independent review, emulating blockchain-like transparency.
-- **Decentralised Moderation:** Governance is vested in the community, with every member empowered to contribute, vote, and shape content standards for their feeds. Moderation rights are held by approximately the top 1% of users in a community by rating, who are able to soft-delete posts from the feed to uphold standards. Every moderation action can be appealed by the broader community through a randomized jury voting process.
+- **Decentralised Moderation:** Governance is vested in the community, with every member empowered to contribute, vote, and shape content standards for their feeds. Moderation rights are held by approximately the top 1% of users in a community by rating, who are able to soft-delete posts from the feed to uphold standards. Every moderation action can be appealed and is then decided by a randomized jury drawn from the community's editors.
 
 **Privacy by Design and Data Control:**  
-Veridonia does not require sign-up to participate and does not track users across the web. The system only uses minimal signals necessary for fairness—for example, new accounts inherit the lowest rating from their IP to discourage bot farms. Beyond this, rating is tied entirely to actions within the platform: voting, posting, and how those decisions align with the community.
+Veridonia does not require sign-up to read the feed and does not track users across the web. An account is needed only to take part—posting, commenting, or voting. The system only uses minimal signals necessary for fairness—for example, new accounts inherit the lowest rating from their IP to discourage bot farms. Beyond this, rating is tied entirely to actions within the platform: voting, posting, and how those decisions align with the community.
 
 At the same time, users retain full control of their data. All activity histories can be accessed and verified without compromising security, reinforcing both transparency and individual privacy.
 
