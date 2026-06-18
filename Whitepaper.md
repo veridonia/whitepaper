@@ -45,9 +45,9 @@ The same failures recur one layer down, in the comments beneath a post. Ordering
 
 Taken together, these dynamics describe a persistent allocation failure. Engagement-based ranking privileges what captures attention; chronological ordering pushes prioritisation onto users and makes outcomes sensitive to timing; editorial allocation can be coherent but concentrates influence in a relatively fixed decision-making class. In each case, visibility becomes difficult to justify and difficult to contest, and high-signal contributions can be buried by volume, path dependence, or centralised judgement. Section 3 translates these failures into concrete design goals: the properties a feed should satisfy if it aims to allocate visibility more representatively and more robustly under feed constraints.
 
-## 3. Design Goals: What a More Human-Centric Feed Should Be
+## 3. Design Goals: What a More Democratic Feed Should Be
 
-A feed is not just a ranking function. It is a system for allocating scarce collective attention under uncertainty. Veridonia’s technical design is meant to approximate the following properties; these define what “more human-centric” means in this paper and make the proposal testable. The mapping from these goals to Veridonia’s five pillars is given in Appendix A.
+A feed is not just a ranking function. It is a system for allocating scarce collective attention under uncertainty. Veridonia’s technical design is meant to approximate the following properties; these define what “more democratic” means in this paper and make the proposal testable. The mapping from these goals to Veridonia’s five pillars is given in Appendix A.
 
 ### 3.1 Representative under uncertainty
 
