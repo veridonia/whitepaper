@@ -1,8 +1,9 @@
 ![ ](assets/logo-veridonia.svg)
 
-# Veridonia: A More Human-Centric Online Feed.
+# Veridonia: A More Democratic Online Feed.
 
-_Hlib Semeniuk_
+_Hlib Semeniuk_  
+<smnkgv@proton.me>
 
 ## Abstract
 
@@ -109,7 +110,7 @@ The following components detail the implementation of Veridonia’s five foundat
 
 ### 5.1 Submission & Review Pipeline
 
-Veridonia evaluates each post that could appear in a community feed through a single, transparent pipeline that combines sortition (random sampling) and tiered majority voting. Random selection at each stage promotes fairness and diversity; tiering by rating concentrates final authority among proven reviewers without excluding broader participation. The mechanism scales with community size: as the population grows, random selection becomes harder to game; in very small communities the system collapses to a simpler single-stage vote.
+Veridonia evaluates each post that could appear in a community feed through a single, transparent pipeline that combines sortition (random sampling) and tiered majority voting. Random selection at each stage promotes fairness and diversity; tiering by rating concentrates final authority among proven reviewers without excluding broader participation. The mechanism is intended to scale with community size: as the population grows, random selection should become harder to game; in very small communities the system collapses to a simpler single-stage vote.
 
 The structure of this pipeline is chosen to balance three goals: keep decisions representative of the broader community, minimise the number of people who need to vote on any given post, and keep decision latency compatible with a live feed. The concrete stages below are a minimal arrangement that preserves diversity in early checks while concentrating later effort on a smaller set of participants who have demonstrated reliable judgement.
 
@@ -129,18 +130,20 @@ The structure of this pipeline is chosen to balance three goals: keep decisions 
 
 4. **Small-Population Mode**: For communities with fewer than 20 members, a single random sample is drawn from all available users. A simple majority decides whether to publish. Rating adjustments are applied to those participants.
 
+The 70/30 stage boundary, panel sizes, and the 20-member threshold are initial defaults rather than load-bearing claims; they are to be calibrated by the evaluation described in Section 9.
+
 **Rationale and Manipulation Resistance**
 
 - **Sortition:** Random selection reduces the viability of targeted manipulation and collusion.
 - **Tiering by rating:** Final decisions are made by users who have consistently shown good judgement in filtering for relevance and quality within the community’s scope, while keeping early checks broad to reflect community diversity and support scalability.
 - **Efficiency under feed constraints:** For publication decisions about posts, Veridonia uses a two‑stage pattern (Section 5.3) that approximates the decisions of a large one‑stage community vote while keeping per‑post latency and voter load compatible with a live feed.
-- **Scalability:** Larger communities increase the entropy of selection, making coordinated capture more difficult.
+- **Scalability:** Larger communities increase the entropy of selection, which is intended to make coordinated capture more difficult.
 - **Transparency:** All votes, outcomes, and subsequent rating changes are publicly logged for auditability.
-- **Internal Echo Reduction:** Within a single community, the combination of random selection and majority outcomes tends to reward content that can attract support across factions. This pushes curation toward broadly acceptable signals and dampens the formation of narrow internal echo chambers, while still allowing distinct communities to maintain their own standards.
+- **Internal Echo Reduction:** Within a single community, the combination of random selection and majority outcomes is intended to reward content that can attract support across factions. This is designed to push curation toward broadly acceptable signals, which we hypothesise would dampen the formation of narrow internal echo chambers, while still allowing distinct communities to maintain their own standards.
 
 ### 5.2 Prediction-Based Rating System (PBRS)
 
-As one of Veridonia's five foundational pillars, the prediction-based rating system reflects how consistently a participant’s prior decisions have matched the outcomes produced by their community. Over time, this identifies contributors whose votes are empirically predictive of full‑community outcomes across many decision types. In practice, Veridonia implements this reputation score using an **ELO-style update rule**: after each decision, rating is transferred (zero-sum) from the losing side to the winning side, scaled by how “expected” the outcome was given each side’s average rating. Higher-rated participants are invited into more consequential review stages, not as arbiters of correctness, but as members whose past participation suggests reliability in navigating the community’s expectations:
+As one of Veridonia's five foundational pillars, the prediction-based rating system reflects how consistently a participant’s prior decisions have matched the outcomes produced by their community. Over time, this is designed to identify contributors whose votes track full‑community outcomes across many decision types. In practice, Veridonia implements this reputation score using an **ELO-style update rule**: after each decision, rating is transferred (zero-sum) from the losing side to the winning side, scaled by how “expected” the outcome was given each side’s average rating. Higher-rated participants are invited into more consequential review stages, not as arbiters of correctness, but as members whose past participation suggests reliability in navigating the community’s expectations:
 
 - **Dynamic Influence:** Users’ ratings reflect their track record of decisions relative to community outcomes. As these ratings rise, users become eligible for expanded responsibilities—such as participation in Stage‑2 review for post publication decisions described in Section 5.3 or, where applicable, appointment as editors. These roles carry more weight in the curation pipeline that governs what appears in the community feed, are fully auditable, and remain conditional on continued performance.
 - **Zero-Sum, Team-Weighted ELO Updates:** After the final decision, voters split into two teams: **winners** (their vote matches the outcome) and **losers** (their vote does not). Rating is reallocated zero-sum between these teams and weighted by their relative strength:
@@ -180,6 +183,8 @@ $$
 
 **Step 3: Rating transfer**
 
+The update factor $K$ (here 32) is a tunable parameter that sets the size of each transfer.
+
 $$
 K = 32
 $$
@@ -200,7 +205,7 @@ Each loser loses $(-15.4 / 2 = -7.7)$
 After this round, the new ratings are approximately:  
 (805, 747, 813, 803, 809)
 
-Although this example describes only one isolated voting stage, the same mechanism repeats continuously across many decisions and participants. Each round transfers small amounts of rating between participants whose votes align with the outcome and those that do not, and over time these micro‑adjustments accumulate toward a stable equilibrium. In simulation over extended runs, the system self‑organises into a characteristic distribution of ratings—most users cluster around the mean, with smaller groups at the extremes corresponding to more and less consistently predictive reviewers. The figure below shows this emergent pattern.
+Although this example describes only one isolated voting stage, the same mechanism repeats continuously across many decisions and participants. Each round transfers small amounts of rating between participants whose votes align with the outcome and those that do not. In simulation over extended runs, these micro‑adjustments accumulate toward a stable equilibrium, and the system self‑organises into a characteristic distribution of ratings—most users cluster around the mean, with smaller groups at the extremes corresponding to more and less consistently predictive reviewers. The figure below shows this emergent pattern.
 
 ![Distribution of Users by Rating. Simulation results showing the equilibrium state produced by repeated voting and rating updates. Most users cluster around the mean, with progressively smaller groups at higher and lower ratings corresponding to the initial and advanced decision groups. Dashed lines mark the 70th and 99th percentiles by user count.](assets/veridonia-users-distribution.png)
 
@@ -224,12 +229,12 @@ While this IP-based inheritance mechanism mitigates certain manipulation risks, 
 
 Veridonia implements a throttling system that regulates users' ability to post based on their rating. Concretely, users with lower rating can post less frequently and experience longer cooldowns between contributions, and as their rating improves these limits are progressively relaxed.
 
-The throttling mechanism serves several critical functions:
+The throttling mechanism is intended to serve several functions:
 
-1. **Quality Control:** By limiting the volume of content from users with lower rating scores, the system naturally increases the average signal relative to noise in visible content.
-2. **Spam Prevention:** Rate limiting creates an effective barrier against automated spam and coordinated manipulation attempts.
-3. **Incentivizing Quality:** The direct relationship between contribution privileges and rating motivates users to focus on thoughtful, community-aligned contributions rather than quantity.
-4. **Self-Regulation:** The system creates a natural self-regulatory environment where users who consistently provide low-quality content have diminished impact on the community.
+1. **Quality Control:** By limiting the volume of content from users with lower rating scores, the system aims to increase the average signal relative to noise in visible content.
+2. **Spam Prevention:** Rate limiting is intended to raise the cost of automated spam and coordinated manipulation attempts.
+3. **Incentivizing Quality:** The direct relationship between contribution privileges and rating is meant to motivate users to focus on thoughtful, community-aligned contributions rather than quantity.
+4. **Self-Regulation:** The mechanism is designed so that users who consistently provide low-quality content have diminished impact on the community.
 5. **Resource Management:** Throttling helps manage computational resources by preventing system overload from excessive low-quality submissions.
 
 This mechanism reinforces Veridonia's core principle that influence within the community should be earned through demonstrated alignment with community standards and quality contribution.
@@ -240,9 +245,9 @@ Multi-stage voting is used specifically for publication decisions about posts th
 
 As a reference point, one could imagine drawing a large random sample of the relevant community for each post and taking a single majority vote. This would provide a direct snapshot of average opinion but would be prohibitively expensive for a live online feed: decision latency would grow, and participants would be overwhelmed by constant review demands.
 
-The two‑stage process is an optimisation of this baseline. Stage 1 uses a broad, randomly selected group drawn from the bulk of the community to filter out clearly off‑scope or low‑value submissions at low cost, preserving diversity and representation while reducing volume. Stage 2 then applies the same majority rule to a much smaller group of higher‑rated reviewers whose ratings reflect a history of aligning with past community outcomes. Because these participants have repeatedly demonstrated that their judgements track what the broader community tends to decide, their votes serve as a sample‑efficient proxy for a much larger community poll.
+The two‑stage process is an optimisation of this baseline. Stage 1 uses a broad, randomly selected group drawn from the bulk of the community to filter out clearly off‑scope or low‑value submissions at low cost, preserving diversity and representation while reducing volume. Stage 2 then applies the same majority rule to a much smaller group of higher‑rated reviewers whose ratings reflect a history of aligning with past community outcomes. Because these participants have repeatedly demonstrated that their judgements track what the broader community tends to decide, their votes are intended to serve as a sample‑efficient proxy for a much larger community poll.
 
-In expectation, this arrangement allows Veridonia to achieve outcomes that are comparable to, and on harder or more context‑dependent posts potentially better than, those of a single large undifferentiated vote, while requiring far fewer total votes per decision and keeping latency compatible with an online feed. Other decision types—such as editors voting on maintenance proposals—may use a single stage, with each eligible participant carrying equal weight in that vote, while still relying on rating to determine eligibility and to update ratings after the fact.
+In expectation, this arrangement is designed to produce outcomes comparable to, and on harder or more context‑dependent posts potentially better than, those of a single large undifferentiated vote, while requiring far fewer total votes per decision and keeping latency compatible with an online feed. Other decision types—such as editors voting on maintenance proposals—may use a single stage, with each eligible participant carrying equal weight in that vote, while still relying on rating to determine eligibility and to update ratings after the fact.
 
 ## 6. Comment Ranking
 
