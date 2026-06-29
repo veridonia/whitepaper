@@ -59,10 +59,10 @@ def vote(user, post):
     return vote_decision
 
 
-def stage_voting(stage_users, post, k_factor=32):
+def round_voting(round_users, post, k_factor=32):
     votes = []
-    stage_decision = "draw"
-    for user in stage_users:
+    round_decision = "draw"
+    for user in round_users:
         vote_decision = vote(user, post)
         votes.append((user, vote_decision))
     supporters = [user for user, vote in votes if vote == "support"]
@@ -70,21 +70,21 @@ def stage_voting(stage_users, post, k_factor=32):
     if not supporters and opposers:
         winning_team = opposers
         losing_team = supporters
-        stage_decision = "oppose"
+        round_decision = "oppose"
     elif not opposers and supporters:
         winning_team = supporters
         losing_team = opposers
-        stage_decision = "support"
+        round_decision = "support"
     elif len(supporters) > len(opposers):
         winning_team = supporters
         losing_team = opposers
-        stage_decision = "support"
+        round_decision = "support"
     elif len(opposers) > len(supporters):
         winning_team = opposers
         losing_team = supporters
-        stage_decision = "oppose"
+        round_decision = "oppose"
     else:
-        return votes, stage_decision
+        return votes, round_decision
     if not losing_team:
         pass
     else:
@@ -101,7 +101,7 @@ def stage_voting(stage_users, post, k_factor=32):
             user.elo += change_per_winner
         for user in losing_team:
             user.elo += change_per_loser
-    return votes, stage_decision
+    return votes, round_decision
 
 
 def elo_update_team(winner_avg_elo, loser_avg_elo, k=32, winner_size=1, loser_size=1):
@@ -173,23 +173,23 @@ def select_posting_users(users, num_posts, elo_scale=400):
     return selected_users
 
 
-def multi_stage_voting(
+def multi_round_voting(
     post,
     all_users,
-    stage1_users=5,
-    stage2_users=5,
+    round1_users=5,
+    round2_users=5,
     k_factor=32,
-    stage1_split=70,
+    round1_split=70,
 ):
     """
-    Implements a two-stage voting mechanism for a given post using ELO tiers.
-    If the number of users is less than 20, a single stage voting is performed by selecting stage1_users from all users.
+    Implements a two-round voting mechanism for a given post using ELO tiers.
+    If the number of users is less than 20, a single round voting is performed by selecting round1_users from all users.
     Otherwise:
-      - Stage 1: Bottom stage1_split% of all users (select stage1_users)
-      - Stage 2: Top (100-stage1_split)% of all users (select stage2_users) - only if Stage 1 has more support than oppose votes
+      - Round 1: Bottom round1_split% of all users (select round1_users)
+      - Round 2: Top (100-round1_split)% of all users (select round2_users) - only if Round 1 has more support than oppose votes
     Publishing rules:
-      - Single stage: More support than oppose votes required to publish
-      - Two stage: Stage 1 needs more support than oppose votes to advance to Stage 2, then Stage 2 needs more support than oppose votes to publish
+      - Single round: More support than oppose votes required to publish
+      - Two round: Round 1 needs more support than oppose votes to advance to Round 2, then Round 2 needs more support than oppose votes to publish
     """
 
     # Use all users for voting
@@ -201,23 +201,23 @@ def multi_stage_voting(
             [],
             [],
             [],
-        )  # Added empty lists for stage1, stage2 participants
+        )  # Added empty lists for round1, round2 participants
 
     sorted_users = sorted(all_users, key=lambda u: u.elo)
     N = len(sorted_users)
     sample_size = 0
 
-    stage1_participants = []
-    stage2_participants = []
+    round1_participants = []
+    round2_participants = []
     if N < 20:
-        stage_users = (
+        round_users = (
             sorted_users
-            if N <= stage1_users
-            else random.sample(sorted_users, stage1_users)
+            if N <= round1_users
+            else random.sample(sorted_users, round1_users)
         )
-        votes, stage_decision = stage_voting(stage_users, post, k_factor=k_factor)
+        votes, round_decision = round_voting(round_users, post, k_factor=k_factor)
         sample_size += len(votes)
-        stage1_participants = [user for user, _ in votes]
+        round1_participants = [user for user, _ in votes]
         support_votes, oppose_votes, total_votes, majority_supported = count_votes(
             votes
         )
@@ -227,38 +227,38 @@ def multi_stage_voting(
         else:
             decision = "oppose"
     else:
-        stage1_group = sorted_users[: int(stage1_split / 100.0 * N)]
-        stage1_selected_users = (
-            stage1_group
-            if len(stage1_group) <= stage1_users
-            else random.sample(stage1_group, stage1_users)
+        round1_group = sorted_users[: int(round1_split / 100.0 * N)]
+        round1_selected_users = (
+            round1_group
+            if len(round1_group) <= round1_users
+            else random.sample(round1_group, round1_users)
         )
-        votes1, _ = stage_voting(stage1_selected_users, post, k_factor=k_factor)
+        votes1, _ = round_voting(round1_selected_users, post, k_factor=k_factor)
         sample_size += len(votes1)
-        stage1_participants = [user for user, _ in votes1]
+        round1_participants = [user for user, _ in votes1]
         support_votes, oppose_votes, total_votes, majority_supported = count_votes(
             votes1
         )
 
         if total_votes > 0:
             if majority_supported:
-                stage2_group = sorted_users[int(stage1_split / 100.0 * N) :]
-                stage2_selected_users = (
-                    stage2_group
-                    if len(stage2_group) <= stage2_users
-                    else random.sample(stage2_group, stage2_users)
+                round2_group = sorted_users[int(round1_split / 100.0 * N) :]
+                round2_selected_users = (
+                    round2_group
+                    if len(round2_group) <= round2_users
+                    else random.sample(round2_group, round2_users)
                 )
-                votes2, _ = stage_voting(stage2_selected_users, post, k_factor=k_factor)
+                votes2, _ = round_voting(round2_selected_users, post, k_factor=k_factor)
                 sample_size += len(votes2)
-                stage2_participants = [user for user, _ in votes2]
-                stage2_support_votes, stage2_oppose_votes, stage2_total_votes, _ = (
+                round2_participants = [user for user, _ in votes2]
+                round2_support_votes, round2_oppose_votes, round2_total_votes, _ = (
                     count_votes(votes2)
                 )
 
-                if stage2_total_votes > 0:
+                if round2_total_votes > 0:
                     decision = (
                         "support"
-                        if stage2_support_votes > stage2_oppose_votes
+                        if round2_support_votes > round2_oppose_votes
                         else "oppose"
                     )
                     votes = votes2
@@ -273,8 +273,8 @@ def multi_stage_voting(
         votes,
         decision,
         sample_size,
-        stage1_participants,
-        stage2_participants,
+        round1_participants,
+        round2_participants,
     )
 
 
@@ -282,11 +282,11 @@ def run_simulation(
     max_population=5000,
     posts_per_user=2,
     growth_rate=0.01,
-    stage1_users=5,
-    stage2_users=5,
+    round1_users=5,
+    round2_users=5,
     elo_start=800,
     k_factor=32,
-    stage1_split=70,
+    round1_split=70,
     elo_posting_scale=100,
 ):
 
@@ -300,10 +300,10 @@ def run_simulation(
         users = []
 
         # Track participants count from each group
-        stage1_participants_count = []
-        stage2_participants_count = []
-        stage1_population_sizes = []
-        stage2_population_sizes = []
+        round1_participants_count = []
+        round2_participants_count = []
+        round1_population_sizes = []
+        round2_population_sizes = []
 
         population_increment = 1.0
         while len(users) < max_population:
@@ -331,28 +331,28 @@ def run_simulation(
 
             for post in new_posts if new_count > 0 else []:
                 sorted_users = sorted(users, key=lambda u: u.elo)
-                stage1_group_size = int(stage1_split / 100.0 * len(sorted_users))
-                stage2_group_size = len(sorted_users) - stage1_group_size
+                round1_group_size = int(round1_split / 100.0 * len(sorted_users))
+                round2_group_size = len(sorted_users) - round1_group_size
 
-                stage1_population_sizes.append(stage1_group_size)
-                stage2_population_sizes.append(stage2_group_size)
+                round1_population_sizes.append(round1_group_size)
+                round2_population_sizes.append(round2_group_size)
                 (
                     votes,
                     decision,
                     post_sample_size,
-                    stage1_participants,
-                    stage2_participants,
-                ) = multi_stage_voting(
+                    round1_participants,
+                    round2_participants,
+                ) = multi_round_voting(
                     post,
                     users,
-                    stage1_users,
-                    stage2_users,
+                    round1_users,
+                    round2_users,
                     k_factor,
-                    stage1_split,
+                    round1_split,
                 )
                 total_votes += 1
-                stage1_participants_count.append(len(stage1_participants))
-                stage2_participants_count.append(len(stage2_participants))
+                round1_participants_count.append(len(round1_participants))
+                round2_participants_count.append(len(round2_participants))
 
                 is_correct = (decision == "support" and post.quality >= 0.5) or (
                     decision == "oppose" and post.quality < 0.5
@@ -489,16 +489,16 @@ def plot_distributions(
         N = len(sorted_users)
 
         # Define thresholds based on user count percentiles (matching voting system)
-        # Stage 1: bottom 70% of users by count
-        # Stage 2: top 30% of users by count (includes editors)
-        # Editor: top 1% of users by count (subset of Stage 2)
-        stage1_cutoff_index = int(0.70 * N)  # Bottom 70% of users
+        # Round 1: bottom 70% of users by count
+        # Round 2: top 30% of users by count (includes editors)
+        # Editor: top 1% of users by count (subset of Round 2)
+        round1_cutoff_index = int(0.70 * N)  # Bottom 70% of users
         editor_cutoff_index = int(0.99 * N)  # Top 1% of users
 
         # Get the actual ELO values at these cutoff points
-        stage1_threshold = (
-            sorted_users[stage1_cutoff_index - 1].elo
-            if stage1_cutoff_index > 0
+        round1_threshold = (
+            sorted_users[round1_cutoff_index - 1].elo
+            if round1_cutoff_index > 0
             else sorted_users[0].elo
         )
         editor_threshold = (
@@ -508,43 +508,43 @@ def plot_distributions(
         )
 
         # Separate users into groups based on user count percentiles
-        stage1_elos = [user.elo for user in sorted_users[:stage1_cutoff_index]]
-        stage2_non_editor_elos = [
-            user.elo for user in sorted_users[stage1_cutoff_index:editor_cutoff_index]
+        round1_elos = [user.elo for user in sorted_users[:round1_cutoff_index]]
+        round2_non_editor_elos = [
+            user.elo for user in sorted_users[round1_cutoff_index:editor_cutoff_index]
         ]
         editor_elos = [user.elo for user in sorted_users[editor_cutoff_index:]]
 
-        # Stage 2 includes both non-editors and editors (top 30% total)
-        stage2_elos = stage2_non_editor_elos + editor_elos
+        # Round 2 includes both non-editors and editors (top 30% total)
+        round2_elos = round2_non_editor_elos + editor_elos
 
         # Create histogram with 50 bins
         bins = 50
 
         # Plot stacked histogram with different colors for each group
-        # Stage 2 includes both regular voters and editors visually
+        # Round 2 includes both regular voters and editors visually
         plt.hist(
-            [stage1_elos, stage2_non_editor_elos, editor_elos],
+            [round1_elos, round2_non_editor_elos, editor_elos],
             bins=bins,
             edgecolor="black",
             log=True,
             color=["#ff9999", "#99ccff", "#51cf66"],  # Red, Blue, Green
             label=[
-                f"Stage 1 Voters (Bottom 70%): {len(stage1_elos)} users",
-                f"Stage 2 Voters (Top 30%): {len(stage2_elos)} users",
+                f"Round 1 Voters (Bottom 70%): {len(round1_elos)} users",
+                f"Round 2 Voters (Top 30%): {len(round2_elos)} users",
                 f"Editors (Top 1%): {len(editor_elos)} users",
             ],
             alpha=0.8,
             stacked=True,
         )
 
-        # Add vertical line at Stage 1/Stage 2 threshold
+        # Add vertical line at Round 1/Round 2 threshold
         plt.axvline(
-            x=stage1_threshold,
+            x=round1_threshold,
             color="blue",
             linestyle="--",
             alpha=0.7,
             linewidth=2,
-            label=f"70th percentile (by user count): {stage1_threshold:.1f}",
+            label=f"70th percentile (by user count): {round1_threshold:.1f}",
         )
 
         # Add vertical line at editor threshold (for reference)
@@ -573,34 +573,34 @@ def plot_distributions(
         else:
             window_size = max(10, int(len(correct_votes_stats) / 100))
 
-        staged_smoothed = (
+        multiround_smoothed = (
             np.convolve(
                 correct_votes_stats, np.ones(window_size) / window_size, mode="valid"
             )
             * 100
         )
 
-        x = np.arange(len(staged_smoothed))
+        x = np.arange(len(multiround_smoothed))
 
-        # Linear regression for staged voting
+        # Linear regression for multiround voting
         (
-            staged_slope,
-            staged_intercept,
-            staged_r_value,
-            staged_p_value,
-            staged_std_err,
-        ) = st.linregress(x, staged_smoothed)
-        staged_r_squared = staged_r_value**2
+            multiround_slope,
+            multiround_intercept,
+            multiround_r_value,
+            multiround_p_value,
+            multiround_std_err,
+        ) = st.linregress(x, multiround_smoothed)
+        multiround_r_squared = multiround_r_value**2
 
         # Plot original data
-        plt.plot(x, staged_smoothed, "b-", label="Staged Voting", alpha=0.7)
+        plt.plot(x, multiround_smoothed, "b-", label="Multi-Round Voting", alpha=0.7)
 
         # Plot regression line
         plt.plot(
             x,
-            staged_slope * x + staged_intercept,
+            multiround_slope * x + multiround_intercept,
             "b--",
-            label=f"Regression (R²={staged_r_squared:.3f})",
+            label=f"Regression (R²={multiround_r_squared:.3f})",
         )
 
     else:
@@ -608,33 +608,33 @@ def plot_distributions(
 
         # Linear regression for raw data
         (
-            staged_slope,
-            staged_intercept,
-            staged_r_value,
-            staged_p_value,
-            staged_std_err,
+            multiround_slope,
+            multiround_intercept,
+            multiround_r_value,
+            multiround_p_value,
+            multiround_std_err,
         ) = st.linregress(x, np.array(correct_votes_stats) * 100)
-        staged_r_squared = staged_r_value**2
+        multiround_r_squared = multiround_r_value**2
 
         # Plot original data
         plt.plot(
             x,
             np.array(correct_votes_stats) * 100,
             "b-",
-            label="Staged Voting",
+            label="Multi-Round Voting",
             alpha=0.7,
         )
 
         # Plot regression line
         plt.plot(
             x,
-            staged_slope * x + staged_intercept,
+            multiround_slope * x + multiround_intercept,
             "b--",
-            label=f"Regression (R²={staged_r_squared:.3f})",
+            label=f"Regression (R²={multiround_r_squared:.3f})",
         )
 
     plt.title("Correct Votes Ratio")
-    plt.xlabel("Stage Index")
+    plt.xlabel("Round Index")
     plt.ylabel("Proportion of Correct Votes (%)")
     plt.ylim(0, 110)
     plt.grid(True)
@@ -643,7 +643,7 @@ def plot_distributions(
     # Subplot 4: Population Over Time
     plt.subplot(2, 2, 4)
     plt.plot(range(len(population_sizes)), population_sizes, label="Population Size")
-    plt.xlabel("Stage Index")
+    plt.xlabel("Round Index")
     plt.ylabel("Population Size")
     plt.title("Population Over Time")
 
@@ -671,18 +671,18 @@ def main():
         help="Population growth rate (default: 0.05)",
     )
 
-    # Voting stage parameters
+    # Voting round parameters
     parser.add_argument(
-        "--stage1-users",
+        "--round1-users",
         type=int,
         default=5,
-        help="Number of users in stage 1 voting (default: 5)",
+        help="Number of users in round 1 voting (default: 5)",
     )
     parser.add_argument(
-        "--stage2-users",
+        "--round2-users",
         type=int,
         default=5,
-        help="Number of users in stage 2 voting (default: 5)",
+        help="Number of users in round 2 voting (default: 5)",
     )
 
     # ELO parameters
@@ -706,10 +706,10 @@ def main():
         help="ELO scale for posting probability (lower = more extreme throttling) (default: 100)",
     )
     parser.add_argument(
-        "--stage1-split",
+        "--round1-split",
         type=int,
         default=70,
-        help="Percentage of high-ELO users for stage 1 (remaining go to stage 2) (default: 70)",
+        help="Percentage of high-ELO users for round 1 (remaining go to round 2) (default: 70)",
     )
 
     args = parser.parse_args()
@@ -719,11 +719,11 @@ def main():
         max_population=args.max_population,
         posts_per_user=args.posts_per_user,
         growth_rate=args.growth_rate,
-        stage1_users=args.stage1_users,
-        stage2_users=args.stage2_users,
+        round1_users=args.round1_users,
+        round2_users=args.round2_users,
         elo_start=args.elo_start,
         k_factor=args.k_factor,
-        stage1_split=args.stage1_split,
+        round1_split=args.round1_split,
         elo_posting_scale=args.elo_posting_scale,
     )
 

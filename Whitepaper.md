@@ -9,7 +9,7 @@ _Hlib Semeniuk_
 
 Veridonia is an experiment in building an online feed platform around a different objective than the one implicit in most existing feed designs. Editorial feeds answer what editors judge important; engagement-based ranking answers what will capture attention now; chronological feeds answer what was posted most recently. Each answers a coherent question, but none directly answers the question a platform would need to answer if its priority were to allocate visibility in a way that is representative of a community: **what each community as a whole decided should be seen by others today**.
 
-This paper argues that answering that question requires treating feed curation as a governance problem under uncertainty: a system for allocating scarce collective attention through a procedure that is legible, contestable, and fast enough for daily use. Veridonia proposes a **referendum-like feed**—a claim about a process that approximates what a community would decide without requiring everyone to vote on everything. It combines randomised voter selection, majority voting, rating system, multi-stage voting proccess, and transparency and auditability into a pipeline for deciding what advances to visibility. The same philosophy extends to a second surface—how the comments beneath a post are ordered—which Section 6 addresses through pairwise comparison rather than accumulated reactions.
+This paper argues that answering that question requires treating feed curation as a governance problem under uncertainty: a system for allocating scarce collective attention through a procedure that is legible, contestable, and fast enough for daily use. Veridonia proposes a **referendum-like feed**—a claim about a process that approximates what a community would decide without requiring everyone to vote on everything. It combines randomised voter selection, majority voting, rating system, multi-round voting proccess, and transparency and auditability into a pipeline for deciding what advances to visibility. The same philosophy extends to a second surface—how the comments beneath a post are ordered—which Section 6 addresses through pairwise comparison rather than accumulated reactions.
 
 ## 1. Introduction
 
@@ -96,7 +96,7 @@ Simple majority outcomes determine whether a piece of content advances, anchorin
 **3. Prediction-Based Rating System (PBRS)**  
 A dynamic rating captures how reliably a participant’s past decisions have matched community outcomes and turns that history into a notion of reputation. This reputation signal governs who is eligible for which responsibilities across the system—for example, participation in higher‑impact reviews, moderation roles, and looser throttling.
 
-**4. Multi-Stage Voting Process (MSVP) for Post Publication**  
+**4. Multi-Round Voting Process (MRVP) for Post Publication**  
 Tiered voting structures how posts move toward publication in community feeds. Early checks expose posts to a broad, low‑cost sample, while later checks use smaller panels drawn from higher‑rated participants to approximate the outcome of a much larger community vote with far fewer total ballots.
 
 **5. Transparency and Auditability**  
@@ -110,42 +110,42 @@ The following components detail the implementation of Veridonia’s five foundat
 
 ### 5.1 Submission & Review Pipeline
 
-Veridonia evaluates each post that could appear in a community feed through a single, transparent pipeline that combines sortition (random sampling) and tiered majority voting. Random selection at each stage promotes fairness and diversity; tiering by rating concentrates final authority among proven reviewers without excluding broader participation. The mechanism is intended to scale with community size: as the population grows, random selection should become harder to game; in very small communities the system collapses to a simpler single-stage vote.
+Veridonia evaluates each post that could appear in a community feed through a single, transparent pipeline that combines sortition (random sampling) and tiered majority voting. Random selection at each round promotes fairness and diversity; tiering by rating concentrates final authority among proven reviewers without excluding broader participation. The mechanism is intended to scale with community size: as the population grows, random selection should become harder to game; in very small communities the system collapses to a simpler single-round vote.
 
-The structure of this pipeline is chosen to balance three goals: keep decisions representative of the broader community, minimise the number of people who need to vote on any given post, and keep decision latency compatible with a live feed. The concrete stages below are a minimal arrangement that preserves diversity in early checks while concentrating later effort on a smaller set of participants who have demonstrated reliable judgement.
+The structure of this pipeline is chosen to balance three goals: keep decisions representative of the broader community, minimise the number of people who need to vote on any given post, and keep decision latency compatible with a live feed. The concrete rounds below are a minimal arrangement that preserves diversity in early checks while concentrating later effort on a smaller set of participants who have demonstrated reliable judgement.
 
 **Process Flow**
 
 1. **Submit**: The author submits a post to a specific community.
 
-2. **Stage 1: Initial Filter (lower 70% by rating)**: A random sample from the lower 70% by rating within that community reviews the post for relevance, informational value, and community alignment.  
+2. **Round 1: Initial Filter (lower 70% by rating)**: A random sample from the lower 70% by rating within that community reviews the post for relevance, informational value, and community alignment.  
    **Outcome:**
-   - If a simple majority approves, the post advances to Stage 2.
+   - If a simple majority approves, the post advances to Round 2.
    - If a simple majority rejects, the post is rejected.  
-     **Rating:** After this decision, rating adjustments are applied to Stage-1 participants independently of Stage-2 outcomes.
+     **Rating:** After this decision, rating adjustments are applied to Round-1 participants independently of Round-2 outcomes.
 
-3. **Stage 2: Final Decision (top 30% by rating)**: A random sample drawn from the top 30% by rating issues the final decision by simple majority.  
+3. **Round 2: Final Decision (top 30% by rating)**: A random sample drawn from the top 30% by rating issues the final decision by simple majority.  
    **Outcome:** The post either enters the community feed or does not, depending on the majority decision of the selected reviewers.  
-   **Rating:** Rating adjustments are applied to Stage-2 participants after the final decision.
+   **Rating:** Rating adjustments are applied to Round-2 participants after the final decision.
 
 4. **Small-Population Mode**: For communities with fewer than 20 members, a single random sample is drawn from all available users. A simple majority decides whether to publish. Rating adjustments are applied to those participants.
 
-The 70/30 stage boundary, panel sizes, and the 20-member threshold are initial defaults rather than load-bearing claims; they are to be calibrated by the evaluation described in Section 9.
+The 70/30 round boundary, panel sizes, and the 20-member threshold are initial defaults rather than load-bearing claims; they are to be calibrated by the evaluation described in Section 9.
 
 **Rationale and Manipulation Resistance**
 
 - **Sortition:** Random selection reduces the viability of targeted manipulation and collusion.
 - **Tiering by rating:** Final decisions are made by users who have consistently shown good judgement in filtering for relevance and quality within the community’s scope, while keeping early checks broad to reflect community diversity and support scalability.
-- **Efficiency under feed constraints:** For publication decisions about posts, Veridonia uses a two‑stage pattern (Section 5.3) that approximates the decisions of a large one‑stage community vote while keeping per‑post latency and voter load compatible with a live feed.
+- **Efficiency under feed constraints:** For publication decisions about posts, Veridonia uses a two‑round pattern (Section 5.3) that approximates the decisions of a large one‑round community vote while keeping per‑post latency and voter load compatible with a live feed.
 - **Scalability:** Larger communities increase the entropy of selection, which is intended to make coordinated capture more difficult.
 - **Transparency:** All votes, outcomes, and subsequent rating changes are publicly logged for auditability.
 - **Internal Echo Reduction:** Within a single community, the combination of random selection and majority outcomes is intended to reward content that can attract support across factions. This is designed to push curation toward broadly acceptable signals, which we hypothesise would dampen the formation of narrow internal echo chambers, while still allowing distinct communities to maintain their own standards.
 
 ### 5.2 Prediction-Based Rating System (PBRS)
 
-As one of Veridonia's five foundational pillars, the prediction-based rating system reflects how consistently a participant’s prior decisions have matched the outcomes produced by their community. Over time, this is designed to identify contributors whose votes track full‑community outcomes across many decision types. In practice, Veridonia implements this reputation score using an **ELO-style update rule**: after each decision, rating is transferred (zero-sum) from the losing side to the winning side, scaled by how “expected” the outcome was given each side’s average rating. Higher-rated participants are invited into more consequential review stages, not as arbiters of correctness, but as members whose past participation suggests reliability in navigating the community’s expectations:
+As one of Veridonia's five foundational pillars, the prediction-based rating system reflects how consistently a participant’s prior decisions have matched the outcomes produced by their community. Over time, this is designed to identify contributors whose votes track full‑community outcomes across many decision types. In practice, Veridonia implements this reputation score using an **ELO-style update rule**: after each decision, rating is transferred (zero-sum) from the losing side to the winning side, scaled by how “expected” the outcome was given each side’s average rating. Higher-rated participants are invited into more consequential review rounds, not as arbiters of correctness, but as members whose past participation suggests reliability in navigating the community’s expectations:
 
-- **Dynamic Influence:** Users’ ratings reflect their track record of decisions relative to community outcomes. As these ratings rise, users become eligible for expanded responsibilities—such as participation in Stage‑2 review for post publication decisions described in Section 5.3 or, where applicable, appointment as editors. These roles carry more weight in the curation pipeline that governs what appears in the community feed, are fully auditable, and remain conditional on continued performance.
+- **Dynamic Influence:** Users’ ratings reflect their track record of decisions relative to community outcomes. As these ratings rise, users become eligible for expanded responsibilities—such as participation in Round‑2 review for post publication decisions described in Section 5.3 or, where applicable, appointment as editors. These roles carry more weight in the curation pipeline that governs what appears in the community feed, are fully auditable, and remain conditional on continued performance.
 - **Zero-Sum, Team-Weighted ELO Updates:** After the final decision, voters split into two teams: **winners** (their vote matches the outcome) and **losers** (their vote does not). Rating is reallocated zero-sum between these teams and weighted by their relative strength:
   1. Compute each team’s average ELO rating (winners_avg, losers_avg).
   2. For each participant, compute an update scaled by a constant **K** and the gap between team averages. Members of the **winners** gain rating, moving upward toward the opposing team’s average; members of the **losers** lose rating, moving downward toward the opposing team’s average.
@@ -154,11 +154,11 @@ As one of Veridonia's five foundational pillars, the prediction-based rating sys
 
 Conserving total rating makes influence a scarce resource that can only be reallocated from less predictive to more predictive contributors, rather than inflated across the board. Weighting updates by team strength means that the size of each rating transfer depends on the gap between the average ratings of the winning and losing sides: when a lower‑rated group wins against a higher‑rated group, the adjustment is larger than when the higher‑rated group wins as expected.
 
-Because rating is updated after every decision and across both stages of review, the boundary between lower- and higher-impact roles is permeable. Participants who begin in Stage‑1 review can, through a sustained record of alignment with community outcomes, move into Stage‑2 and eventually into editorial (moderation) roles, while those whose decisions repeatedly diverge from outcomes will see their influence contract. This continual re-evaluation stands in contrast to rigid, once-appointed moderator classes common on other platforms and is intended to support a more bottom-up, renewable form of authority.
+Because rating is updated after every decision and across both rounds of review, the boundary between lower- and higher-impact roles is permeable. Participants who begin in Round‑1 review can, through a sustained record of alignment with community outcomes, move into Round‑2 and eventually into editorial (moderation) roles, while those whose decisions repeatedly diverge from outcomes will see their influence contract. This continual re-evaluation stands in contrast to rigid, once-appointed moderator classes common on other platforms and is intended to support a more bottom-up, renewable form of authority.
 
 The numerical example below illustrates how these small, bounded adjustments operate in a single vote.
 
-**Example: One Voting Stage**
+**Example: One Voting Round**
 
 Suppose five users have been selected to vote on whether a suggested post A should be published to a community X.
 
@@ -205,7 +205,7 @@ Each loser loses $(-15.4 / 2 = -7.7)$
 After this round, the new ratings are approximately:  
 (805, 747, 813, 803, 809)
 
-Although this example describes only one isolated voting stage, the same mechanism repeats continuously across many decisions and participants. Each round transfers small amounts of rating between participants whose votes align with the outcome and those that do not. In simulation over extended runs, these micro‑adjustments accumulate toward a stable equilibrium, and the system self‑organises into a characteristic distribution of ratings—most users cluster around the mean, with smaller groups at the extremes corresponding to more and less consistently predictive reviewers. The figure below shows this emergent pattern.
+Although this example describes only one isolated voting round, the same mechanism repeats continuously across many decisions and participants. Each round transfers small amounts of rating between participants whose votes align with the outcome and those that do not. In simulation over extended runs, these micro‑adjustments accumulate toward a stable equilibrium, and the system self‑organises into a characteristic distribution of ratings—most users cluster around the mean, with smaller groups at the extremes corresponding to more and less consistently predictive reviewers. The figure below shows this emergent pattern.
 
 ![Distribution of Users by Rating. Simulation results showing the equilibrium state produced by repeated voting and rating updates. Most users cluster around the mean, with progressively smaller groups at higher and lower ratings corresponding to the initial and advanced decision groups. Dashed lines mark the 70th and 99th percentiles by user count.](assets/veridonia-users-distribution.png)
 
@@ -221,7 +221,7 @@ The rating system also encompasses onboarding and participation controls, detail
 As a pragmatic defence against large-scale automated abuse, Veridonia currently couples initial user rating to an IP-level baseline while treating this mechanism as provisional rather than core to the system’s philosophy.
 
 - **Initial Assignment:** If the IP address has no previous users, a default rating (e.g., 800) is used.
-- **IP-Based Rating Inheritance:** To protect the platform from bot attacks and coordinated manipulation, all new users inherit the rating assigned to their IP address. After each voting stage, an IP address is updated to reflect the lowest rating among its associated users. For example, if users from an IP (e.g., 156.156.156.3) have ratings of 850, 700, and 1500, the IP is assigned a rating of 700. Any new users registering from this IP will begin with a rating of 700, capped at a default maximum (e.g., 800) for first-time IPs.
+- **IP-Based Rating Inheritance:** To protect the platform from bot attacks and coordinated manipulation, all new users inherit the rating assigned to their IP address. After each voting round, an IP address is updated to reflect the lowest rating among its associated users. For example, if users from an IP (e.g., 156.156.156.3) have ratings of 850, 700, and 1500, the IP is assigned a rating of 700. Any new users registering from this IP will begin with a rating of 700, capped at a default maximum (e.g., 800) for first-time IPs.
 
 While this IP-based inheritance mechanism mitigates certain manipulation risks, it has clear limitations. Shared or dynamic IP addresses may produce unintended effects—including the penalisation of legitimate users employing privacy-preserving tools (e.g., Tor or VPNs). This mechanism is not foundational to Veridonia’s core philosophy; rather, it functions as an initial, pragmatic safeguard and is expected to evolve as the platform matures. Potential improvements under consideration include community-reviewed verification requests, whereby users could appeal or validate their onboarding status through review by top-rated participants (e.g., the top 30% or designated editors). The precise procedures and governance structures for such processes remain to be determined and will be shaped by community input and further research.
 
@@ -239,15 +239,15 @@ The throttling mechanism is intended to serve several functions:
 
 This mechanism reinforces Veridonia's core principle that influence within the community should be earned through demonstrated alignment with community standards and quality contribution.
 
-### 5.3 Multi-Stage Voting Process (MSVP) for Posts
+### 5.3 Multi-Round Voting Process (MRVP) for Posts
 
-Multi-stage voting is used specifically for publication decisions about posts that may enter community feeds. The central design question is how to approximate “what the whole community would decide” without asking a large share of the community to vote on every post.
+Multi-round voting is used specifically for publication decisions about posts that may enter community feeds. The central design question is how to approximate “what the whole community would decide” without asking a large share of the community to vote on every post.
 
 As a reference point, one could imagine drawing a large random sample of the relevant community for each post and taking a single majority vote. This would provide a direct snapshot of average opinion but would be prohibitively expensive for a live online feed: decision latency would grow, and participants would be overwhelmed by constant review demands.
 
-The two‑stage process is an optimisation of this baseline. Stage 1 uses a broad, randomly selected group drawn from the bulk of the community to filter out clearly off‑scope or low‑value submissions at low cost, preserving diversity and representation while reducing volume. Stage 2 then applies the same majority rule to a much smaller group of higher‑rated reviewers whose ratings reflect a history of aligning with past community outcomes. Because these participants have repeatedly demonstrated that their judgements track what the broader community tends to decide, their votes are intended to serve as a sample‑efficient proxy for a much larger community poll.
+The two‑round process is an optimisation of this baseline. Round 1 uses a broad, randomly selected group drawn from the bulk of the community to filter out clearly off‑scope or low‑value submissions at low cost, preserving diversity and representation while reducing volume. Round 2 then applies the same majority rule to a much smaller group of higher‑rated reviewers whose ratings reflect a history of aligning with past community outcomes. Because these participants have repeatedly demonstrated that their judgements track what the broader community tends to decide, their votes are intended to serve as a sample‑efficient proxy for a much larger community poll.
 
-In expectation, this arrangement is designed to produce outcomes comparable to, and on harder or more context‑dependent posts potentially better than, those of a single large undifferentiated vote, while requiring far fewer total votes per decision and keeping latency compatible with an online feed. Other decision types—such as editors voting on maintenance proposals—may use a single stage, with each eligible participant carrying equal weight in that vote, while still relying on rating to determine eligibility and to update ratings after the fact.
+In expectation, this arrangement is designed to produce outcomes comparable to, and on harder or more context‑dependent posts potentially better than, those of a single large undifferentiated vote, while requiring far fewer total votes per decision and keeping latency compatible with an online feed. Other decision types—such as editors voting on maintenance proposals—may use a single round, with each eligible participant carrying equal weight in that vote, while still relying on rating to determine eligibility and to update ratings after the fact.
 
 ## 6. Comment Ranking
 
@@ -304,23 +304,23 @@ This appendix collects the mapping between the design goals in Section 3 and the
 | ----------------------------------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------- |
 | Representation                                  | Sortition                      | Samples a changing cross-section of the community rather than a fixed group                                 |
 |                                                 | Consensus                      | Aggregates sampled judgements into a clear, legible outcome                                                 |
-|                                                 | MSVP                           | Approximates large-population outcomes with far fewer votes                                                 |
+|                                                 | MRVP                           | Approximates large-population outcomes with far fewer votes                                                 |
 | Capture resistance                              | Sortition                      | Makes targeted influence harder by making reviewer selection unpredictable                                  |
 |                                                 | PBRS                           | Makes long-term influence expensive to maintain without continued alignment                                 |
-|                                                 | MSVP                           | Reduces attack surface by filtering volume early                                                            |
+|                                                 | MRVP                           | Reduces attack surface by filtering volume early                                                            |
 |                                                 | Transparency                   | Makes coordinated abuse more visible and investigable                                                       |
 | Open participation                              | PBRS                           | Converts historical alignment into conditional, revocable influence and enables rating-based throttling     |
-|                                                 | MSVP                           | Routes final decisions to reviewers with demonstrated track records without excluding broader participation |
+|                                                 | MRVP                           | Routes final decisions to reviewers with demonstrated track records without excluding broader participation |
 | Self-correction                                 | PBRS                           | Reallocates influence after each decision, using zero-sum updates to prevent inflation and force trade-offs |
-|                                                 | MSVP                           | Lets roles expand or contract dynamically as the rating distribution shifts                                 |
+|                                                 | MRVP                           | Lets roles expand or contract dynamically as the rating distribution shifts                                 |
 | Signal incentives                               | Consensus                      | Keeps the optimisation target explicit and stable                                                           |
 |                                                 | PBRS                           | Rewards accurate anticipation of community outcomes rather than declared intentions                         |
-|                                                 | MSVP                           | Concentrates review capacity among participants who have repeatedly produced high-signal judgements         |
+|                                                 | MRVP                           | Concentrates review capacity among participants who have repeatedly produced high-signal judgements         |
 | Legible & contestable                           | Consensus                      | Keeps outcomes contestable via reversible decisions (e.g., re-voting) under a clear rule                    |
 |                                                 | Transparency                   | Makes decisions, vote tallies, and rating changes inspectable                                               |
 | Daily speed                                     | Sortition                      | Avoids referenda-scale participation burdens                                                                |
 |                                                 | PBRS                           | Reduces required sample size by concentrating decisions where they are most informative                     |
-|                                                 | MSVP                           | Approximates large votes with fewer ballots and less delay                                                  |
+|                                                 | MRVP                           | Approximates large votes with fewer ballots and less delay                                                  |
 | Procedural (not epistemic)                      | Consensus                      | Avoids hidden optimisation targets                                                                          |
 |                                                 | PBRS                           | Grounds influence in outcomes rather than credentials                                                       |
 |                                                 | Transparency                   | Shifts legitimacy from assumed correctness to verifiable process                                            |

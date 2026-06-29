@@ -6,9 +6,9 @@
 
 ## What is Veridonia?
 
-Veridonia is an online feed that experiments with redesigning how feeds are shaped. Instead of engagement-based ranking, it lets communities decide what deserves visibility through a transparent review pipeline. Content is evaluated in randomly sampled, multi-stage votes; majority outcomes decide whether a post advances, and an ELO-based rating system adjusts each participant’s influence based on how reliably their past decisions align with community outcomes.
+Veridonia is an online feed that experiments with redesigning how feeds are shaped. Instead of engagement-based ranking, it lets communities decide what deserves visibility through a transparent review pipeline. Content is evaluated in randomly sampled, multi-round votes; majority outcomes decide whether a post advances, and an ELO-based rating system adjusts each participant’s influence based on how reliably their past decisions align with community outcomes.
 
-The core aim is to systematically route scarce attention toward high-signal contributions and away from low-value noise. The design rests on five pillars drawn from the whitepaper: sortition (random selection), consensus (majority voting), ELO-based rating, multi-stage review, and full transparency and auditability of votes, rating changes, and moderation actions, complemented by ELO-based throttling of low-rated accounts.
+The core aim is to systematically route scarce attention toward high-signal contributions and away from low-value noise. The design rests on five pillars drawn from the whitepaper: sortition (random selection), consensus (majority voting), ELO-based rating, multi-round review, and full transparency and auditability of votes, rating changes, and moderation actions, complemented by ELO-based throttling of low-rated accounts.
 
 ---
 
@@ -24,7 +24,7 @@ The whitepaper describes the problems with engagement-driven feeds, the system a
 
 ## The Simulation
 
-This repository contains a Python implementation of Veridonia's core mechanics. It's simplified—no IP inheritance, no communities, no real user behavior—but it captures the essential question from the whitepaper: does multi-stage voting with ELO-based selection and throttling shift attention toward high-signal posts and suppress noise over time?
+This repository contains a Python implementation of Veridonia's core mechanics. It's simplified—no IP inheritance, no communities, no real user behavior—but it captures the essential question from the whitepaper: does multi-round voting with ELO-based selection and throttling shift attention toward high-signal posts and suppress noise over time?
 
 ### Installation
 
@@ -46,8 +46,8 @@ Common variations:
 # Faster, smaller simulation
 python simulation.py --max-population 1000 --posts-per-user 1
 
-# Change the stage split
-python simulation.py --stage1-split 50  # 50/50 instead of 70/30
+# Change the round split
+python simulation.py --round1-split 50  # 50/50 instead of 70/30
 
 # More volatile ratings
 python simulation.py --k-factor 64
@@ -72,7 +72,7 @@ Shows the distribution of innate ability to judge content quality. Users above 0
 
 **Distribution of Users by ELO Rating**
 
-Shows how ELO spreads across the population and where the voting tiers fall. Stage 1 voters are the bottom 70% by user count (blue). Stage 2 voters are the top 30% (orange). The dashed line marks the top 1%, who would have moderation privileges in a real system.
+Shows how ELO spreads across the population and where the voting tiers fall. Round 1 voters are the bottom 70% by user count (blue). Round 2 voters are the top 30% (orange). The dashed line marks the top 1%, who would have moderation privileges in a real system.
 
 **Correct Votes Ratio Over Time**
 
@@ -92,9 +92,9 @@ Shows growth rate over time. Useful for context when comparing different paramet
 
 **Voting structure:**
 
-- `--stage1-users` (default: 5)
-- `--stage2-users` (default: 5)
-- `--stage1-split` (default: 70)
+- `--round1-users` (default: 5)
+- `--round2-users` (default: 5)
+- `--round1-split` (default: 70)
 
 **ELO dynamics:**
 
