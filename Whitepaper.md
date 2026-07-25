@@ -156,6 +156,8 @@ Conserving total rating makes influence a scarce resource that can only be reall
 
 Because rating is updated after every decision and across both rounds of review, the boundary between lower- and higher-impact roles is permeable. Participants who begin in Round‑1 review can, through a sustained record of alignment with community outcomes, move into Round‑2 and eventually into editorial (moderation) roles, while those whose decisions repeatedly diverge from outcomes will see their influence contract. This continual re-evaluation stands in contrast to rigid, once-appointed moderator classes common on other platforms and is intended to support a more bottom-up, renewable form of authority.
 
+This prediction scoring is deliberately confined to publication rounds. Editorial decisions — the review of a reported contribution, an appeal against a removal, a change to the community itself — are settled by panels whose members are not scored on the outcome: serving on them is part of the editorial role, and the role itself, with the influence it carries, is the reward. Two rules keep this coherent. A settled decision is final and is never re-scored by a later one — an appeal charges no one for having voted to remove. And power carries no upside: an editor who removes content single-handedly earns nothing when upheld, and forfeits standing only when an appeal panel finds the removal indefensible rather than merely wrong, so wielding removal power is never itself a way to gain influence.
+
 The numerical example below illustrates how these small, bounded adjustments operate in a single vote.
 
 **Example: One Voting Round**
@@ -239,6 +241,18 @@ The throttling mechanism is intended to serve several functions:
 
 This mechanism reinforces Veridonia's core principle that influence within the community should be earned through demonstrated alignment with community standards and quality contribution.
 
+#### 5.2.3 Stakes
+
+Rating moves through two distinct mechanisms, and it is worth separating them. The prediction-based updates described above score **judgement**: they reallocate rating among the participants of a decision according to whose vote matched its outcome. Stakes price **the claims participants bring to be judged**. Both adjust the same rating, both are zero-sum, but they answer different questions and apply to different people.
+
+The rule is single and general: **any claim a participant places on their community's judgement is staked on how that judgement goes.** Submitting a post or comment, reporting content, appealing a removal — each asks the community to decide something, and each puts a small amount of the asker's rating behind the ask. A claim the community affirms returns the stake, or a corresponding gain; a claim it rejects forfeits it. The stake follows the community's *current* judgement of the claim: content removed after publication ends exactly where a rejected submission would, so slipping past review is never a free bet. This raises the cost of low-effort and bad-faith participation in every channel at once — posting, accusing, and contesting are all priced the same way — without recourse to content rules the platform would have to interpret, and it complements throttling: the throttle limits how often a participant may make claims, while the stake attaches a cost to making them badly.
+
+A settled stake is transferred zero-sum between the claimant and a randomly drawn set of the community's current members — those who have joined and not left — excluding the claimant and the voters who decided the question, since those voters are already scored on their judgement. The members drawn are **recipients of a stake, not judges**: they are not being scored, they are not asked to evaluate anything, and their selection carries no claim that they would have decided the question one way or the other. They stand in for the community the claim was addressed to. The draw spans every current member, so all ratings stay comparable across the community — and a member who never takes part slowly cedes rating to those who do.
+
+There are exactly two exceptions, each because no claim on the community is being made. **What a participant does with their own contributions** — editing within the permitted window, deleting their own content — stakes nothing: it asks nothing of anyone. And **a chief editor's emergency override** stakes nothing on any side: it is the platform's emergency power, not a community judgement, so there is no decision for a stake to settle against.
+
+Staking claims is the mechanism by which repeated disregard for a community's standards becomes costly to the participant responsible, rather than only to the community absorbing it. A participant whose contributions are steadily declined or removed — or whose accusations and appeals steadily fail — loses influence and, through the throttle described above, the ability to produce them at volume.
+
 ### 5.3 Multi-Round Voting Process (MRVP) for Posts
 
 Multi-round voting is used specifically for publication decisions about posts that may enter community feeds. The central design question is how to approximate “what the whole community would decide” without asking a large share of the community to vote on every post.
@@ -273,7 +287,7 @@ The Section 3 goals govern this mechanism, met by different means. Because a par
 Veridonia is designed to be an open and self-regulating ecosystem:
 
 - **Public Auditability:** All voting records, rating adjustments, and moderation actions affecting what appears in the feed are logged and accessible for independent review, emulating blockchain-like transparency.
-- **Decentralised Moderation:** Governance is vested in the community, with every member empowered to contribute, vote, and shape content standards for their feeds. Moderation rights are held by approximately the top 1% of users in a community by rating, who are able to soft-delete posts from the feed to uphold standards. Every moderation action can be appealed and is then decided by a randomized jury drawn from the community's editors.
+- **Decentralised Moderation:** Governance is vested in the community, with every member empowered to contribute, vote, and shape content standards for their feeds. Moderation rights are held by approximately the top 1% of users in a community by rating, who are able to soft-delete posts from the feed to uphold standards. Every moderation action can be appealed and is then decided by a randomized jury drawn from the community's editors. Moderation outcomes also carry rating consequences, through the stakes described in Section 5.2.3: a removal settles a stake against the author of the removed contribution, reports and appeals are staked by those who file them, and a successful appeal reverses the removal's settlement.
 
 **Privacy by Design and Data Control:**  
 Veridonia does not require sign-up to read the feed and does not track users across the web. An account is needed only to take part—posting, commenting, or voting. The system only uses minimal signals necessary for fairness—for example, new accounts inherit the lowest rating from their IP to discourage bot farms. Beyond this, rating is tied entirely to actions within the platform: voting, posting, and how those decisions align with the community.
