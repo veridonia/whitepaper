@@ -162,7 +162,7 @@ The numerical example below illustrates how these small, bounded adjustments ope
 
 **Example: One Voting Round**
 
-Suppose five users have been selected to vote on whether a suggested post A should be published to a community X.
+Suppose five users have been selected to vote on whether a suggested post A is worth seeing in a community X.
 
 Their initial ratings are **800, 755, 821, 798,** and **804.**  
 Three vote **Yes** (users 1, 4, 5) and two **No** (2, 3). The majority outcome is **Yes**.
