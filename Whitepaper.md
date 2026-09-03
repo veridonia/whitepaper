@@ -77,9 +77,13 @@ Participants should be able to form a mental model of why content appears or doe
 
 A feed that is correct but slow is functionally unusable. Speed is a constraint: for typical communities, time-to-decision should fit daily usage patterns, and per-user review load should stay bounded as content volume grows.
 
+Speed is a constraint and not the objective, and the distinction has teeth. A decision that concludes the instant the first vote arrives is fast and says nothing, because whoever answers quickest decides alone; a system that optimises latency directly will select for exactly that. So a decision holds open for a short period after it has enough votes, so that people answering at ordinary human speed are still counted, and it aims at *concluding* within the day rather than at concluding sooner. The measure that matters is the share of decisions that conclude, not how quickly the concluded ones did.
+
 ### 3.8 Procedural, not epistemic
 
 A feed should not claim to know what is true, important, or correct. It should claim only that its process is fair, inspectable, and adaptive, so disagreements can be addressed by disputing procedure (sampling, rules, appeals) rather than by appeals to authority or opaque optimisation.
+
+This constrains what the product may say about its own output. A community too small to convene a panel will publish posts nobody judged, and that is survivable — what is not survivable is presenting such a post as though it had been reviewed. Each post therefore carries how many people actually judged it, including when the answer is none.
 
 The sections that follow map these goals to a concrete mechanism set. Section 4 introduces Veridonia’s five pillars and describes how they are used to implement a referendum-like feed under practical constraints.
 
@@ -128,9 +132,15 @@ The structure of this pipeline is chosen to balance three goals: keep decisions 
    **Outcome:** The post either enters the community feed or does not, depending on the majority decision of the selected reviewers.  
    **Rating:** Rating adjustments are applied to Round-2 participants after the final decision.
 
-4. **Small-Population Mode**: For communities with fewer than 20 members, a single random sample is drawn from all available users. A simple majority decides whether to publish. Rating adjustments are applied to those participants.
+4. **Single-Panel Mode**: Where a community is not large enough for its higher-standing band to staff a final round of its own, one random sample is drawn from everyone available and a simple majority decides whether to publish. Rating adjustments are applied to those participants. Where that boundary falls is derived rather than fixed: a community escalates only when the band can produce more than one vote, since a final round settled by a single person is not a check on the broad panel but a veto over it — so it moves with how often that community actually answers, rather than sitting at a membership count.
 
-The 70/30 round boundary, panel sizes, and the 20-member threshold are initial defaults rather than load-bearing claims; they are to be calibrated by the evaluation described in Section 9.
+5. **Revision**: A rejected post is not finished. Its author may rewrite it and put the new version before the same panel, as often as they are willing to: the people who read it and said what was wrong with it are the ones who can tell whether it has been fixed. Each attempt is staked afresh, so persistence is allowed but never free, and it is that rising cost — rather than any limit on attempts — that stops trying again from being a way to wear a community down. Every version is kept, and each decision shows the version it actually judged.
+
+**How many are asked, and how many must answer.** Both are read from the community rather than set for it. The bar is what that community can realistically produce — measured from how often the people it asks actually answer — and the panel is then sized so that many answers are expected. A bar above what a community can supply does not raise its standards; it only means every decision runs to its deadline. Panel size and quorum saturate rather than growing with the community: past a handful of votes a panel learns very little more about what a population thinks.
+
+**Saying why.** A decider voting against a post says what is wrong with it, chosen from a short set that is the same in every community, and the author is told as soon as the decision on their version settles. A rejection an author cannot act on teaches nothing, and turns a procedural outcome into an arbitrary one — which is precisely the failure Goal 3.6 exists to prevent.
+
+The 70/30 round boundary is an initial default rather than a load-bearing claim, to be calibrated by the evaluation described in Section 9. The membership threshold that used to sit beside it is gone: it is now derived from what a community can staff, which is the same move this section makes for quorum and panel size.
 
 **Rationale and Manipulation Resistance**
 
