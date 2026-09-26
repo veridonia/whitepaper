@@ -1,14 +1,14 @@
 ![Veridonia Logo](assets/logo-veridonia.svg)
 
-**A More Human-Centric Online Feed**
+**A European news feed, decided in the open.**
 
 ---
 
 ## What is Veridonia?
 
-Veridonia is an online feed that experiments with redesigning how feeds are shaped. Instead of engagement-based ranking, it lets communities decide what deserves visibility through a transparent review pipeline. Content is evaluated in randomly sampled, multi-round votes; majority outcomes decide whether a post advances, and an ELO-based rating system adjusts each participant’s influence based on how reliably their past decisions align with community outcomes.
+Veridonia is an online feed that experiments with redesigning how feeds are shaped. Instead of engagement-based ranking, it lets communities decide what deserves visibility through a transparent review pipeline. A post enters a community's feed when a randomly drawn panel of that community's members decides by simple majority that it is worth seeing; in a community large enough to staff one, a second panel of higher-standing members makes the final call, and in a small community a single panel decides. An ELO-style rating adjusts how often each participant is drawn for the higher-standing round, never how much a vote weighs, based on how reliably their past decisions matched their community's outcomes.
 
-The core aim is to systematically route scarce attention toward high-signal contributions and away from low-value noise. The design rests on five pillars drawn from the whitepaper: sortition (random selection), consensus (majority voting), ELO-based rating, multi-round review, and full transparency and auditability of votes, rating changes, and moderation actions, complemented by ELO-based throttling of low-rated accounts.
+The core aim is to systematically route scarce attention toward high-signal contributions and away from low-value noise. Community feeds are always free to read; advertising is never an option, and only private-benefit features may ever be paid. The design rests on five pillars drawn from the whitepaper: sortition (random selection), consensus (majority voting), ELO-based rating, multi-round review, and full transparency and auditability of votes, rating changes, and moderation actions, complemented by ELO-based throttling of low-rated accounts.
 
 ---
 
