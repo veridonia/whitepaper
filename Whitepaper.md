@@ -118,6 +118,8 @@ Veridonia evaluates each post that could appear in a community feed through a si
 
 The structure of this pipeline is chosen to balance three goals: keep decisions representative of the broader community, minimise the number of people who need to vote on any given post, and keep decision latency compatible with a live feed. The concrete rounds below are a minimal arrangement that preserves diversity in early checks while concentrating later effort on a smaller set of participants who have demonstrated reliable judgement.
 
+Every round of this pipeline puts one defined question to its deciders, worded the same way every time: _would most people here say this is worth seeing?_ It asks for a prediction of what the community would answer rather than a personal verdict, because matching the community's outcome is what the rating in Section 5.2 rewards.
+
 **Process Flow**
 
 1. **Submit**: The author submits a post to a specific community.
@@ -172,7 +174,7 @@ The numerical example below illustrates how these small, bounded adjustments ope
 
 **Example: One Voting Round**
 
-Suppose five users have been selected to vote on whether a suggested post A is worth seeing in a community X.
+Suppose five users in a community X have been selected to answer, about a suggested post A, whether most people there would say it is worth seeing.
 
 Their initial ratings are **800, 755, 821, 798,** and **804.**  
 Three vote **Yes** (users 1, 4, 5) and two **No** (2, 3). The majority outcome is **Yes**.
