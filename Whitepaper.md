@@ -261,7 +261,7 @@ A settled stake moves zero-sum between the claimant and a random set of the comm
 
 Acting on one's own contributions, or the platform's emergency override, stakes nothing, because neither asks the community to decide.
 
-Staking claims is the mechanism by which repeated disregard for a community's standards becomes costly to the participant responsible, rather than only to the community absorbing it. A participant whose contributions are steadily declined or removed — or whose accusations and appeals steadily fail — loses influence and, through the throttle described above, the ability to produce them at volume.
+Staking claims is the mechanism by which repeated disregard for a community's standards becomes costly to the participant responsible, rather than only to the community absorbing it. A participant whose contributions are steadily declined or removed — or whose accusations and appeals steadily fail — loses influence and, through the throttle described above, the ability to produce them at volume. To keep that cost from fading, a stake never shrinks because its author has already lost standing, and each further rejection in a run stakes more than the last, up to a bound.
 
 ### 5.3 Multi-Round Voting Process (MRVP) for Posts
 
